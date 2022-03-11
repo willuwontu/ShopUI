@@ -14,10 +14,10 @@ namespace ItemShops.Extensions
         public PlayerAdditionalData()
         {
             bankAccount = new BankAccount();
-            bankAccount.Deposit(new Dictionary<string, int> { { "Credits", 50 }, { "Banana", 32 } });
+            //bankAccount.Deposit(new Dictionary<string, int> { { "Credits", 50 }, { "Banana", 32 } });
         }
     }
-    public static class CharacterStatModifiersExtension
+    public static class PlayerExtension
     {
         public static readonly ConditionalWeakTable<Player, PlayerAdditionalData> data =
             new ConditionalWeakTable<Player, PlayerAdditionalData>();
@@ -37,7 +37,7 @@ namespace ItemShops.Extensions
         }
     }
     [HarmonyPatch(typeof(Player), "FullReset")]
-    class CharacterStatModifiersPatchResetStats
+    class PlayerFullResetPatch
     {
         private static void Prefix(Player __instance)
         {

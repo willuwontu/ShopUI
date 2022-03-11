@@ -70,6 +70,11 @@ namespace ItemShops.Utils
             ItemShops.instance.StartCoroutine(ShowCard(player, card));
         }
 
+        public override bool CanPurchase(Player player)
+        {
+            return ModdingUtils.Utils.Cards.instance.PlayerIsAllowedCard(player, this.Card);
+        }
+
         public override GameObject CreateItem(GameObject parent)
         {
             GameObject container = null;

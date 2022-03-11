@@ -23,9 +23,9 @@ namespace ItemShops.Utils
         /// <param name="amount">The amount to add.</param>
         public void Deposit(string currency, int amount)
         {
-            if (money.TryGetValue(currency, out int deposited))
+            if (money.ContainsKey(currency))
             {
-                deposited += amount;
+                money[currency] += amount;
             }
             else
             {
@@ -59,7 +59,7 @@ namespace ItemShops.Utils
             {
                 if (deposited >= amount)
                 {
-                    deposited = deposited - amount;
+                    money[currency] -= amount;
                     return true;
                 }
             }

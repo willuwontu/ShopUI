@@ -1,5 +1,6 @@
 ﻿using BepInEx;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using HarmonyLib;
@@ -7,7 +8,7 @@ using ItemShops.Extensions;
 using ItemShops.Interfaces;
 using ItemShops.Utils;
 using UnboundLib;
-using UnboundLib.Cards;
+using UnboundLib.GameModes;
 using Jotunn.Utils;
 using UnityEngine;
 using Sonigon;
@@ -89,6 +90,18 @@ namespace ItemShops
             gameObject.AddComponent<InterfaceGameModeHooksManager>();
             gameObject.AddComponent<ShopManager>();
             gameObject.AddComponent<CurrencyManager>();
+
+            GameModeManager.AddHook(GameModeHooks.HookPointEnd, OnPointEnd);
+        }
+
+        private IEnumerator OnPointEnd(IGameModeHandler gm)
+        {
+            foreach (var shop in ShopManager.instance.Shops.Values)
+            {
+                shop.Hide();
+            }
+
+            yield break;
         }
 
         //private void Update()
@@ -105,12 +118,12 @@ namespace ItemShops
         //        {
         //            shop = ShopManager.instance.CreateShop("Test Shop");
 
-        //            this.ExecuteAfterSeconds(2f, () =>
+        //            this.ExecuteAfterSeconds(1f, () =>
         //            {
         //                var items = UnboundLib.Utils.CardManager.cards.Values.Select(card => new PurchasableCard(card.cardInfo, new Dictionary<string, int> { { "Credits", 1 }, { "Banana", 2 } }, new Tag[] { new Tag(card.category), new Tag("Banana") })).ToArray().Take(50).ToArray();
         //                shop.AddItems(items.Select(item => item.Card.cardName).ToArray(), items);
         //            });
-        //            this.ExecuteAfterSeconds(3f, () =>
+        //            this.ExecuteAfterSeconds(2f, () =>
         //            {
         //                shop.AddItem("Walrus 500", UnboundLib.Utils.CardManager.cards.Values.Select(card => new PurchasableCard(card.cardInfo, new Dictionary<string, int>(), new Tag[] { new Tag(card.category) })).ToArray().GetRandom<Purchasable>());
         //            });

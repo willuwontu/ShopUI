@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using UnityEngine;
+using UnityEngine.UI;
 using ItemShops.Monobehaviours;
 
 namespace ItemShops.Utils
@@ -56,8 +57,33 @@ namespace ItemShops.Utils
             {
                 _timesPlayerPurchased.Add(player, 1);
             }
-
             Purchasable.OnPurchase(player, Purchasable);
+        }
+
+        public bool IsItemPurchasable(Player player = null)
+        {
+            bool canPurchase = this.Purchasable.CanPurchase(player);
+
+            if (player && (this.PurchaseLimit.perPlayer > 0))
+            {
+                if (this.TimesPlayerPurchased.TryGetValue(player, out int times))
+                {
+                    if (times >= this.PurchaseLimit.perPlayer)
+                    {
+                        canPurchase = false;
+                    }
+                }
+            }
+
+            if (this.PurchaseLimit.global > 0)
+            {
+                if (this.TimesPurchased >= this.PurchaseLimit.global)
+                {
+                    canPurchase = false;
+                }
+            }
+
+            return canPurchase;
         }
 
         public void ResetPurchases()
