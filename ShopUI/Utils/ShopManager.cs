@@ -12,9 +12,9 @@ namespace ItemShops.Utils
     {
         public static ShopManager instance;
 
-        internal List<Shop> _shops = new List<Shop>();
+        internal Dictionary<string, Shop> _shops = new Dictionary<string, Shop>();
 
-        public ReadOnlyCollection<Shop> Shops { get { return new ReadOnlyCollection<Shop>(this._shops); } }
+        public ReadOnlyDictionary<string, Shop> Shops { get { return new ReadOnlyDictionary<string, Shop>(this._shops); } }
 
         internal GameObject shopCanvas;
 
@@ -54,14 +54,21 @@ namespace ItemShops.Utils
             xmark = ItemShops.instance.assets.LoadAsset<Sprite>("xmark");
         }
 
-        public Shop CreateShop(string name)
+        public Shop CreateShop(string id)
         {
+            if (_shops.ContainsKey(id))
+            {
+                throw new ArgumentException("ShopManager::CreateShop(string id) expects a unique id.");
+            }
+
+            Shop shop = null;
             var shopObj = Instantiate(shopTemplate, shopCanvas.transform);
             shopObj.GetOrAddComponent<RectTransform>().localScale = Vector3.one;
-            var shop = shopObj.AddComponent<Shop>();
-            shop.UpdateName(name);
+            shop = shopObj.AddComponent<Shop>();
+            shop.UpdateTitle(name);
+            shop.ID = name;
 
-            _shops.Add(shop);
+            _shops.Add(name, shop);
 
             shop.Hide();
 
@@ -70,13 +77,13 @@ namespace ItemShops.Utils
 
         public void RemoveShop(Shop shop)
         {
-            _shops.Remove(shop);
+            _shops.Remove(shop.ID);
             UnityEngine.GameObject.Destroy(shop.gameObject);
         }
 
         public void ClearShops()
         {
-            Shop[] shops = Shops.ToArray();
+            Shop[] shops = Shops.Values.ToArray();
 
             _shops.Clear();
 

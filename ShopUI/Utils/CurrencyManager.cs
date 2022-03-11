@@ -17,6 +17,17 @@ namespace ItemShops.Utils
 
         public static CurrencyManager instance;
 
+        public bool RegisterCurrencyIcon(string currency, Action<Image> imageAction)
+        {
+            if (CurrencyImageActions.ContainsKey(currency))
+            {
+                return false;
+            }
+            CurrencyImageActions.Add(currency, imageAction);
+
+            return true;
+        }
+
         public Action<Image> CurrencyImageAction(string currency)
         {
             Action<Image> imageAction = null;

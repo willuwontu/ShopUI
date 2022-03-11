@@ -82,5 +82,7 @@ namespace ItemShops.Utils
         {
             shop.OnItemClicked(this);
         }
+
+        internal string ID;
     }
 }
