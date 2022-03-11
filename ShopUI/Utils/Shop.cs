@@ -185,6 +185,15 @@ namespace ItemShops.Utils
         {
             return AddItem(itemID, item, new PurchaseLimit(0, 0), true);
         }
+        public ShopItem AddItem(Purchasable item, PurchaseLimit purchaseLimit)
+        {
+            return this.AddItem(item.Name, item, purchaseLimit);
+        }
+
+        public ShopItem AddItem(Purchasable item)
+        {
+            return this.AddItem(item.Name, item);
+        }
 
         public ShopItem[] AddItems(string[] itemIDs, Purchasable[] items)
         {
@@ -236,6 +245,18 @@ namespace ItemShops.Utils
             ShopManager.instance.ExecuteAfterFrames(2, UpdateItems);
 
             return shopItems.ToArray();
+        }
+        public ShopItem[] AddItems(Purchasable[] items)
+        {
+            return this.AddItems(items.Select(i => i.Name).ToArray(), items);
+        }
+        public ShopItem[] AddItems(Purchasable[] items, PurchaseLimit purchaseLimit)
+        {
+            return this.AddItems(items.Select(i => i.Name).ToArray(), items, purchaseLimit);
+        }
+        public ShopItem[] AddItems(Purchasable[] items, PurchaseLimit[] purchaseLimits)
+        {
+            return this.AddItems(items.Select(i => i.Name).ToArray(), items, purchaseLimits);
         }
 
         public void RemoveItem(string itemId)
