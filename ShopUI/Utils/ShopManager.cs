@@ -65,10 +65,10 @@ namespace ItemShops.Utils
             var shopObj = Instantiate(shopTemplate, shopCanvas.transform);
             shopObj.GetOrAddComponent<RectTransform>().localScale = Vector3.one;
             shop = shopObj.AddComponent<Shop>();
-            shop.UpdateTitle(name);
-            shop.ID = name;
+            shop.UpdateTitle(id);
+            shop.ID = id;
 
-            _shops.Add(name, shop);
+            _shops.Add(id, shop);
 
             shop.Hide();
 
