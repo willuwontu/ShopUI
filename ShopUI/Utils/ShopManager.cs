@@ -11,7 +11,17 @@ namespace ItemShops.Utils
     public class ShopManager : MonoBehaviour
     {
         public static ShopManager instance;
-        public static bool IsLockingInput { get; internal set; }
+        public static bool isLockingInput
+        {
+            get
+            {
+                if (ShopManager.instance == null || (!(ShopManager.instance.Shops.Count() > 0)))
+                {
+                    return false;
+                }
+                return ShopManager.instance.Shops.Values.Any((shop) => shop.gameObject.activeSelf);
+            }
+        }
 
         internal Dictionary<string, Shop> _shops = new Dictionary<string, Shop>();
 
