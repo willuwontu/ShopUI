@@ -156,7 +156,7 @@ namespace ItemShops.Utils
 
             if (update)
             {
-                UpdateItems();
+                ShopManager.instance.ExecuteAfterFrames(2, UpdateItems);
             }
 
             return shopItem;
@@ -175,14 +175,14 @@ namespace ItemShops.Utils
         public ShopItem[] AddItems(Purchasable[] items)
         {
             ShopItem[] shopItems = items.Select(item => AddItem(item, new PurchaseLimit(0, 0), false)).ToArray();
-            this.ExecuteAfterFrames(2, UpdateItems);
+            ShopManager.instance.ExecuteAfterFrames(2, UpdateItems);
             return shopItems;
         }
 
         public ShopItem[] AddItems(Purchasable[] items, PurchaseLimit purchaseLimit)
         {
             ShopItem[] shopItems = items.Select(item => AddItem(item, new PurchaseLimit(purchaseLimit), false)).ToArray();
-            UpdateItems();
+            ShopManager.instance.ExecuteAfterFrames(2, UpdateItems);
             return shopItems;
         }
 
@@ -200,7 +200,7 @@ namespace ItemShops.Utils
                 shopItems.Add(AddItem(items[i], new PurchaseLimit(purchaseLimits[i]), false));
             }
 
-            UpdateItems();
+            ShopManager.instance.ExecuteAfterFrames(2, UpdateItems);
 
             return shopItems.ToArray();
         }
@@ -209,7 +209,7 @@ namespace ItemShops.Utils
         {
             _items.Remove(item);
             UnityEngine.GameObject.Destroy(item.gameObject);
-            UpdateItems();
+            ShopManager.instance.ExecuteAfterFrames(2, UpdateItems);
         }
 
         public void RemoveAllItems()
@@ -227,20 +227,67 @@ namespace ItemShops.Utils
         {
             var itemObj = Instantiate<GameObject>(ShopManager.instance.shopItemTemplate, ItemContainer.transform);
             itemObj.GetComponent<RectTransform>().localScale = Vector3.one;
-            itemObj.AddComponent<ButtonInteraction>();
+            var interact = itemObj.AddComponent<ButtonInteraction>();
 
             var shopItem = itemObj.AddComponent<ShopItem>();
             shopItem.Purchasable = item;
             shopItem.PurchaseLimit = purchaseLimit;
 
-            item.CreateItem(shopItem.ItemContainer).GetComponent<RectTransform>().localScale = Vector3.one;
+            var purchaseItem = item.CreateItem(shopItem.ItemContainer);
+            DisableItemAnimations(purchaseItem, interact);
+            purchaseItem.GetOrAddComponent<RectTransform>().localScale = Vector3.one;
+            purchaseItem.GetOrAddComponent<RectTransform>().localPosition = Vector3.zero;
 
             foreach (var cost in shopItem.Purchasable.Cost)
             {
-                CreateCostItem(shopItem.CostContainer, cost.Key, cost.Value).GetComponent<RectTransform>().localScale = Vector3.one;
+                CreateCostItem(shopItem.CostContainer, cost.Key, cost.Value).GetOrAddComponent<RectTransform>().localScale = Vector3.one;
             }
 
             return shopItem;
+        }
+
+        private void DisableItemAnimations(GameObject item, ButtonInteraction interact)
+        {
+            Animator[] animators = new Animator[0];
+            PositionNoise[] noises = new PositionNoise[0];
+
+            animators = item.GetComponentsInChildren<Animator>();
+            noises = item.GetComponentsInChildren<PositionNoise>();
+
+            foreach (var animator in animators)
+            {
+                animator.enabled = false;
+            }
+
+            foreach (var noise in noises)
+            {
+                noise.enabled = false;
+            }
+
+            interact.mouseEnter.AddListener(() =>
+            {
+                foreach (var animator in animators)
+                {
+                    animator.enabled = true;
+                }
+                foreach (var noise in noises)
+                {
+                    noise.enabled = true;
+                }
+            });
+
+            interact.mouseExit.AddListener(() =>
+            {
+                foreach (var animator in animators)
+                {
+                    animator.enabled = false;
+                }
+
+                foreach (var noise in noises)
+                {
+                    noise.enabled = false;
+                }
+            });
         }
 
         private GameObject CreateCostItem(GameObject parent, string currency, int amount)
@@ -404,7 +451,7 @@ namespace ItemShops.Utils
         {
             if (currentPurchase != null)
             {
-                if (player.GetAdditionalData().bankAccount.Withdraw(currentPurchase.Purchasable.Cost))
+                if (player.GetAdditionalData().bankAccount.HasFunds(currentPurchase.Purchasable.Cost))
                 {
                     currentPurchase.OnPurchase(player);
                     UpdateMoney();

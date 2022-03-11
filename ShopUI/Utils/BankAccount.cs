@@ -90,6 +90,11 @@ namespace ItemShops.Utils
             return canWithdraw;
         }
 
+        public bool HasFunds(Dictionary<string, int> money)
+        {
+            return money.All(resource => (this.money.TryGetValue(resource.Key, out int deposited) && deposited >= resource.Value));
+        }
+
         /// <summary>
         /// Removes all money in the bank account.
         /// </summary>

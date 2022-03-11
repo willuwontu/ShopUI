@@ -5,8 +5,6 @@ using UnityEngine.Events;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using UnboundLib;
-using Sonigon;
-using Sonigon.Internal;
 
 namespace ItemShops.Monobehaviours
 {
@@ -16,12 +14,14 @@ namespace ItemShops.Monobehaviours
         public UnityEvent mouseEnter = new UnityEvent();
         public UnityEvent mouseExit = new UnityEvent();
         public Button button;
+        public AudioSource source;
 
         private System.Random random = new System.Random();
 
         private void Start()
         {
             button = gameObject.GetComponent<Button>();
+            source = gameObject.GetOrAddComponent<AudioSource>();
 
             mouseEnter.AddListener(OnEnter);
             mouseExit.AddListener(OnExit);
@@ -32,12 +32,7 @@ namespace ItemShops.Monobehaviours
         {
             if (button.interactable)
             {
-                //source.PlayOneShot(ItemShops.instance.hover[random.Next(ItemShops.instance.hover.Count)]);
-                SoundManager.Instance.Play(
-                    ItemShops.instance.hoverSounds[random.Next(ItemShops.instance.hoverSounds.Count)],
-                    base.transform,
-                    new SoundParameterBase[] { new SoundParameterIntensity(Optionshandler.vol_Sfx * Optionshandler.vol_Master, UpdateMode.Once) }
-                    );
+                source.PlayOneShot(ItemShops.instance.hover[random.Next(ItemShops.instance.hover.Count)]);
             }
         }
 
@@ -45,11 +40,7 @@ namespace ItemShops.Monobehaviours
         {
             if (button.interactable)
             {
-                SoundManager.Instance.Play(
-                    ItemShops.instance.hoverSounds[random.Next(ItemShops.instance.hoverSounds.Count)],
-                    base.transform,
-                    new SoundParameterBase[] { new SoundParameterIntensity(Optionshandler.vol_Sfx * Optionshandler.vol_Master, UpdateMode.Once) }
-                    );
+                source.PlayOneShot(ItemShops.instance.hover[random.Next(ItemShops.instance.hover.Count)]);
             }
         }
 
@@ -57,11 +48,7 @@ namespace ItemShops.Monobehaviours
         {
             if (button.interactable)
             {
-                SoundManager.Instance.Play(
-                    ItemShops.instance.clickSounds[random.Next(ItemShops.instance.clickSounds.Count)],
-                    base.transform,
-                    new SoundParameterBase[] { new SoundParameterIntensity(Optionshandler.vol_Sfx * Optionshandler.vol_Master, UpdateMode.Once) }
-                    );
+                source.PlayOneShot(ItemShops.instance.click[random.Next(ItemShops.instance.click.Count)]);
                 EventSystem.current.SetSelectedGameObject(null);
             }
         }

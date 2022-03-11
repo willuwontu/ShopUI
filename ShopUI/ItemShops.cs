@@ -96,7 +96,7 @@ namespace ItemShops
         //    if (Input.GetKeyDown(KeyCode.I))
         //    {
         //        Shop shop = null;
-                    
+
         //        if (ShopManager.instance.Shops.Count() > 0)
         //        {
         //            shop = ShopManager.instance.Shops[0];
@@ -107,7 +107,7 @@ namespace ItemShops
 
         //            this.ExecuteAfterSeconds(5f, () =>
         //            {
-        //                shop.AddItems(UnboundLib.Utils.CardManager.cards.Values.Select(card => new PurchasableCard(card.cardInfo, new Dictionary<string, int> { { "Credits", 1 }, { "Banana", 2 } }, new Tag[] { new Tag(card.category), new Tag("Banana") })).ToArray().Take(30).ToArray());
+        //                shop.AddItems(UnboundLib.Utils.CardManager.cards.Values.Select(card => new PurchasableCard(card.cardInfo, new Dictionary<string, int> { { "Credits", 1 }, { "Banana", 2 } }, new Tag[] { new Tag(card.category), new Tag("Banana") })).ToArray().Take(50).ToArray());
         //            });
         //            this.ExecuteAfterSeconds(6f, () =>
         //            {

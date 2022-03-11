@@ -67,5 +67,23 @@ namespace ItemShops.Utils
 
             return shop;
         }
+
+        public void RemoveShop(Shop shop)
+        {
+            _shops.Remove(shop);
+            UnityEngine.GameObject.Destroy(shop.gameObject);
+        }
+
+        public void ClearShops()
+        {
+            Shop[] shops = Shops.ToArray();
+
+            _shops.Clear();
+
+            foreach (var shop in shops)
+            {
+                UnityEngine.GameObject.Destroy(shop.gameObject);
+            }
+        }
     }
 }
