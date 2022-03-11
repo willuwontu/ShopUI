@@ -160,12 +160,15 @@ namespace ItemShops.Utils
                 UnityEngine.GameObject.Destroy(particle);
             }
 
-            var titleText = FindObjectInChildren(cardObj, "Text_Name").GetComponent<TextMeshProUGUI>();
-
-            if ((titleText.color.r < 0.18f) && (titleText.color.g < 0.18f) && (titleText.color.b < 0.18f))
+            ItemShops.instance.ExecuteAfterSeconds(0.5f, () =>
             {
-                titleText.color = new Color32(200, 200, 200, 255);
-            }
+                var titleText = FindObjectInChildren(cardObj, "Text_Name").GetComponent<TextMeshProUGUI>();
+
+                if ((titleText.color.r < 0.18f) && (titleText.color.g < 0.18f) && (titleText.color.b < 0.18f))
+                {
+                    titleText.color = new Color32(200, 200, 200, 255);
+                }
+            });
 
             return cardObj;
         }
