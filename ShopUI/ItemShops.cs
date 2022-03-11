@@ -91,40 +91,40 @@ namespace ItemShops
             gameObject.AddComponent<CurrencyManager>();
         }
 
-        private void Update()
-        {
-            if (Input.GetKeyDown(KeyCode.I))
-            {
-                Shop shop = null;
+        //private void Update()
+        //{
+        //    if (Input.GetKeyDown(KeyCode.I))
+        //    {
+        //        Shop shop = null;
 
-                if (ShopManager.instance.Shops.Count() > 0)
-                {
-                    shop = ShopManager.instance.Shops.First().Value;
-                }
-                else
-                {
-                    shop = ShopManager.instance.CreateShop("Test Shop");
+        //        if (ShopManager.instance.Shops.Count() > 0)
+        //        {
+        //            shop = ShopManager.instance.Shops.First().Value;
+        //        }
+        //        else
+        //        {
+        //            shop = ShopManager.instance.CreateShop("Test Shop");
 
-                    this.ExecuteAfterSeconds(2f, () =>
-                    {
-                        var items = UnboundLib.Utils.CardManager.cards.Values.Select(card => new PurchasableCard(card.cardInfo, new Dictionary<string, int> { { "Credits", 1 }, { "Banana", 2 } }, new Tag[] { new Tag(card.category), new Tag("Banana") })).ToArray().Take(50).ToArray();
-                        shop.AddItems(items.Select(item => item.Card.cardName).ToArray(), items);
-                    });
-                    this.ExecuteAfterSeconds(3f, () =>
-                    {
-                        shop.AddItem("Walrus 500", UnboundLib.Utils.CardManager.cards.Values.Select(card => new PurchasableCard(card.cardInfo, new Dictionary<string, int>(), new Tag[] { new Tag(card.category) })).ToArray().GetRandom<Purchasable>());
-                    });
-                }
+        //            this.ExecuteAfterSeconds(2f, () =>
+        //            {
+        //                var items = UnboundLib.Utils.CardManager.cards.Values.Select(card => new PurchasableCard(card.cardInfo, new Dictionary<string, int> { { "Credits", 1 }, { "Banana", 2 } }, new Tag[] { new Tag(card.category), new Tag("Banana") })).ToArray().Take(50).ToArray();
+        //                shop.AddItems(items.Select(item => item.Card.cardName).ToArray(), items);
+        //            });
+        //            this.ExecuteAfterSeconds(3f, () =>
+        //            {
+        //                shop.AddItem("Walrus 500", UnboundLib.Utils.CardManager.cards.Values.Select(card => new PurchasableCard(card.cardInfo, new Dictionary<string, int>(), new Tag[] { new Tag(card.category) })).ToArray().GetRandom<Purchasable>());
+        //            });
+        //        }
 
-                if (shop.IsOpen)
-                {
-                    shop.Hide();
-                }
-                else
-                {
-                    shop.Show(PlayerManager.instance.players[0]);
-                }
-            }
-        }
+        //        if (shop.IsOpen)
+        //        {
+        //            shop.Hide();
+        //        }
+        //        else
+        //        {
+        //            shop.Show(PlayerManager.instance.players[0]);
+        //        }
+        //    }
+        //}
     }
 }
