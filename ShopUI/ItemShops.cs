@@ -1,12 +1,15 @@
 ﻿using BepInEx;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using HarmonyLib;
 using ItemShops.Interfaces;
+using ItemShops.Utils;
 using UnboundLib;
 using UnboundLib.Cards;
 using Jotunn.Utils;
 using UnityEngine;
+using Sonigon;
 
 namespace ItemShops
 {
@@ -20,8 +23,8 @@ namespace ItemShops
     [BepInProcess("Rounds.exe")]
     public class ItemShops : BaseUnityPlugin
     {
-        private const string ModId = "com.My.Mod.Id";
-        private const string ModName = "MyModName";
+        private const string ModId = "com.willuwontu.rounds.itemshops";
+        private const string ModName = "Item Shops";
         public const string Version = "0.0.0"; // What version are we on (major.minor.patch)?
 
         public static ItemShops instance { get; private set; }
@@ -30,6 +33,8 @@ namespace ItemShops
 
         public List<AudioClip> click;
         public List<AudioClip> hover;
+        public List<SoundEvent> clickSounds = new List<SoundEvent>();
+        public List<SoundEvent> hoverSounds = new List<SoundEvent>();
 
         void Awake()
         {
@@ -43,11 +48,62 @@ namespace ItemShops
             var harmony = new Harmony(ModId);
             harmony.PatchAll();
 
-            gameObject.AddComponent<InterfaceGameModeHooksManager>();
-
             assets = AssetUtils.LoadAssetBundleFromResources("shopuiassets", typeof(ItemShops).Assembly);
-            click = assets.LoadAllAssets<AudioClip>().ToList().Where(clip => clip.name.Contains("UI_Button_Click")).ToList();
-            hover = assets.LoadAllAssets<AudioClip>().ToList().Where(clip => clip.name.Contains("UI_Button_Hover")).ToList();
+
+            { // Button Sounds
+                
+                click = assets.LoadAllAssets<AudioClip>().ToList().Where(clip => clip.name.Contains("UI_Button_Click")).ToList();
+                hover = assets.LoadAllAssets<AudioClip>().ToList().Where(clip => clip.name.Contains("UI_Button_Hover")).ToList();
+
+                try
+                {
+                    foreach (var sound in click)
+                    {
+                        SoundContainer soundContainer = ScriptableObject.CreateInstance<SoundContainer>();
+                        soundContainer.setting.volumeIntensityEnable = true;
+                        soundContainer.audioClip[0] = sound;
+                        SoundEvent soundEvent = ScriptableObject.CreateInstance<SoundEvent>();
+                        soundEvent.soundContainerArray[0] = soundContainer;
+                        clickSounds.Add(soundEvent);
+                    }
+
+                    foreach (var sound in hover)
+                    {
+                        SoundContainer soundContainer = ScriptableObject.CreateInstance<SoundContainer>();
+                        soundContainer.setting.volumeIntensityEnable = true;
+                        soundContainer.audioClip[0] = sound;
+                        SoundEvent soundEvent = ScriptableObject.CreateInstance<SoundEvent>();
+                        soundEvent.soundContainerArray[0] = soundContainer;
+                        hoverSounds.Add(soundEvent);
+                    }
+                }
+                catch (Exception e)
+                {
+                    UnityEngine.Debug.LogException(e);
+                }
+            }
+
+            gameObject.AddComponent<InterfaceGameModeHooksManager>();
+            gameObject.AddComponent<ShopManager>();
+            gameObject.AddComponent<CurrencyManager>();
+
+            this.ExecuteAfterSeconds(5f, Demo);
+        }
+
+        private void Demo()
+        {
+            var shop = ShopManager.instance.CreateShop("Test Shop");
+
+            this.ExecuteAfterSeconds(10f, () =>
+            {
+                shop.AddItems(UnboundLib.Utils.CardManager.cards.Values.Select(card => new PurchasableCard(card.cardInfo, new Dictionary<string, int>(), new Tag[] { new Tag(card.category) })).ToArray().Take(30).ToArray());
+            });
+            this.ExecuteAfterSeconds(11f, () =>
+            {
+                shop.AddItem(UnboundLib.Utils.CardManager.cards.Values.Select(card => new PurchasableCard(card.cardInfo, new Dictionary<string, int>(), new Tag[] { new Tag(card.category) })).ToArray().GetRandom<Purchasable>());
+            });
+
+            shop.Show(shop.gameObject.AddComponent<Player>());
         }
     }
 }

@@ -6,6 +6,11 @@ namespace ItemShops.Utils
 {
     struct Tag
     {
-        string name;
+        public readonly string name;
+
+        public Tag(string name)
+        {
+            this.name = name.ToUpper();
+        }
     }
 }
