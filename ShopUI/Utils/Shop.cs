@@ -41,7 +41,7 @@ namespace ItemShops.Utils
         private Button _purchaseButton = null;
         private GameObject _moneyContainer = null;
 
-        public virtual TextMeshProUGUI Title
+        public TextMeshProUGUI Title
         {
             get
             {
@@ -53,7 +53,7 @@ namespace ItemShops.Utils
                 return _title;
             }
         }
-        public virtual GameObject TagContainer
+        public GameObject TagContainer
         {
             get
             {
@@ -65,7 +65,7 @@ namespace ItemShops.Utils
                 return _tagContainer;
             }
         }
-        public virtual TMP_InputField Filter
+        public TMP_InputField Filter
         {
             get
             {
@@ -77,7 +77,7 @@ namespace ItemShops.Utils
                 return _filter;
             }
         }
-        public virtual GameObject ItemContainer
+        public GameObject ItemContainer
         {
             get
             {
@@ -89,7 +89,7 @@ namespace ItemShops.Utils
                 return _itemContainer;
             }
         }
-        public virtual TextMeshProUGUI PurchaseNameText
+        public TextMeshProUGUI PurchaseNameText
         {
             get
             {
@@ -101,7 +101,7 @@ namespace ItemShops.Utils
                 return _purchaseNameText;
             }
         }
-        public virtual GameObject PurchaseCostContainer
+        public GameObject PurchaseCostContainer
         {
             get
             {
@@ -112,7 +112,7 @@ namespace ItemShops.Utils
                 return _purchaseCostContainer;
             }
         }
-        public virtual Button PurchaseButton
+        public Button PurchaseButton
         {
             get
             {
@@ -123,7 +123,7 @@ namespace ItemShops.Utils
                 return _purchaseButton;
             }
         }
-        public virtual GameObject MoneyContainer
+        public GameObject MoneyContainer
         {
             get
             {
@@ -132,6 +132,21 @@ namespace ItemShops.Utils
                     _moneyContainer = this.gameObject.transform.Find("Shop Sections/Money Section/Money View/Viewport/Content").gameObject;
                 }
                 return _moneyContainer;
+            }
+        }
+
+        private ScrollRect _scrollRect = null;
+
+        public ScrollRect Scroll
+        {
+            get
+            {
+                if (!_scrollRect)
+                {
+                    _scrollRect = this.gameObject.transform.Find("Shop Sections/Item Section/Item View").GetComponent<ScrollRect>();
+                }
+
+                return _scrollRect;
             }
         }
         public ReadOnlyDictionary<string, ShopItem> ShopItems
@@ -290,10 +305,17 @@ namespace ItemShops.Utils
             shopItem.Purchasable = item;
             shopItem.PurchaseLimit = purchaseLimit;
 
-            var purchaseItem = item.CreateItem(shopItem.ItemContainer);
-            DisableItemAnimations(purchaseItem, interact);
-            purchaseItem.GetOrAddComponent<RectTransform>().localScale = Vector3.one;
-            purchaseItem.GetOrAddComponent<RectTransform>().localPosition = Vector3.zero;
+            try
+            {
+                var purchaseItem = item.CreateItem(shopItem.ItemContainer);
+                DisableItemAnimations(purchaseItem, interact);
+                purchaseItem.GetOrAddComponent<RectTransform>().localScale = Vector3.one;
+                purchaseItem.GetOrAddComponent<RectTransform>().localPosition = Vector3.zero;
+            }
+            catch (Exception e)
+            {
+                UnityEngine.Debug.LogException(e);
+            }
 
             foreach (var cost in shopItem.Purchasable.Cost)
             {
@@ -362,7 +384,9 @@ namespace ItemShops.Utils
         public void Show(Player player)
         {
             currentPlayer = player;
+
             UpdateMoney();
+            UpdateFilters();
             this.gameObject.SetActive(true);
         }
 
@@ -433,7 +457,9 @@ namespace ItemShops.Utils
             string[] requiredTags = tagItems.Where(tagItem => tagItem.FilterState == FilterState.Required).Select(tagItem => tagItem.tag).ToArray().Select(tag => tag.name).ToArray();
 
             ShopItem[] validItems = _items.Values.Where(item => (!(excludedTags.Intersect(item.Purchasable.Tags.Select(tag=> tag.name).ToArray()).ToArray().Length > 0)) && (requiredTags.Intersect(item.Purchasable.Tags.Select(tag => tag.name).ToArray()).ToArray().Length == requiredTags.Length)).ToArray();
-            
+
+            validItems = validItems.Where(item => item.IsItemPurchasable(currentPlayer)).ToArray();
+
             if (Filter.text.Trim().Length > 0)
             {
                 validItems = validItems.Where(item => 

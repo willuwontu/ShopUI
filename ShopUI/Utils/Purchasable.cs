@@ -12,5 +12,6 @@ namespace ItemShops.Utils
         public abstract GameObject CreateItem(GameObject parent);
         public abstract void OnPurchase(Player player, Purchasable item);
         public abstract Tag[] Tags { get; }
+        public abstract bool CanPurchase(Player player);
     }
 }
