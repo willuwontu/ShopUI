@@ -19,7 +19,7 @@ namespace ItemShops.Utils
             {
                 if (!_itemContainer)
                 {
-                    _itemContainer = this.gameObject.transform.Find("Item Holder").gameObject;
+                    _itemContainer = this.gameObject.transform.Find("Container/Item Holder").gameObject;
                 }
 
                 return _itemContainer;
@@ -31,12 +31,41 @@ namespace ItemShops.Utils
             {
                 if (!_costContainer)
                 {
-                    _costContainer = this.gameObject.transform.Find("Cost View/Viewport/Content").gameObject;
+                    _costContainer = this.gameObject.transform.Find("Container/Cost View/Viewport/Content").gameObject;
                 }
 
                 return _costContainer;
             }
         }
+
+        private GameObject _highlight = null;
+
+        public GameObject Highlight
+        {
+            get
+            {
+                if (!_highlight)
+                {
+                    _highlight = this.transform.Find("Highlight").gameObject;
+                }
+                return _highlight;
+            }
+        }
+
+        private GameObject _darken = null;
+
+        public GameObject Darken
+        {
+            get
+            {
+                if (!_darken)
+                {
+                    _darken = this.transform.Find("Darken").gameObject;
+                }
+                return _darken;
+            }
+        }
+
         public Purchasable Purchasable { get; internal set; }
         public PurchaseLimit PurchaseLimit { get; internal set; }
 

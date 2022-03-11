@@ -104,6 +104,16 @@ namespace ItemShops
             yield break;
         }
 
+        private IEnumerator OnGameStart(IGameModeHandler gm)
+        {
+            foreach (var player in PlayerManager.instance.players)
+            {
+                player.GetAdditionalData().bankAccount.RemoveAllMoney();
+            }
+
+            yield break;
+        }
+
         //private void Update()
         //{
         //    if (Input.GetKeyDown(KeyCode.I))

@@ -36,12 +36,4 @@ namespace ItemShops.Extensions
             catch (Exception) { }
         }
     }
-    [HarmonyPatch(typeof(Player), "FullReset")]
-    class PlayerFullResetPatch
-    {
-        private static void Prefix(Player __instance)
-        {
-            __instance.GetAdditionalData().bankAccount = new BankAccount();
-        }
-    }
 }
