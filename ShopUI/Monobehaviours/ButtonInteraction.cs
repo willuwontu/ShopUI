@@ -55,16 +55,25 @@ namespace ItemShops.Monobehaviours
 
         public void OnPointerEnter(PointerEventData eventData)
         {
-            mouseEnter?.Invoke();
+            if (button.interactable)
+            {
+                mouseEnter?.Invoke();
+            }
         }
         public void OnPointerExit(PointerEventData eventData)
         {
-            mouseExit?.Invoke();
+            if (button.interactable)
+            {
+                mouseExit?.Invoke();
+            }
         }
 
         public void OnPointerClick(PointerEventData eventData)
         {
-            mouseClick?.Invoke();
+            if (button.interactable)
+            {
+                mouseClick?.Invoke();
+            }
         }
     }
 }
