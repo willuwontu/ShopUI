@@ -30,6 +30,7 @@ namespace ItemShops.Utils
         Dictionary<string, ShopItem> _items = new Dictionary<string, ShopItem>();
 
         ShopItem currentPurchase = null;
+        internal ShopItem highlightedItem = null;
         Player currentPlayer = null;
 
         private TextMeshProUGUI _title = null;
@@ -559,7 +560,7 @@ namespace ItemShops.Utils
         {
             if (currentPurchase != null)
             {
-                if (player.GetAdditionalData().bankAccount.HasFunds(currentPurchase.Purchasable.Cost))
+                if (player.GetAdditionalData().bankAccount.HasFunds(currentPurchase.Purchasable.Cost) && currentPurchase.IsItemPurchasable(currentPlayer))
                 {
                     NetworkingManager.RPC(typeof(Shop), nameof(URPCA_Purchase), new object[] { ID, player.playerID, currentPurchase.ID });
                     currentPurchase = null;
