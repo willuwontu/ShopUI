@@ -21,5 +21,11 @@ namespace ItemShops.Utils
             this.global = global;
             this.perPlayer = perPlayer;
         }
+        
+        public PurchaseLimit(PurchaseLimit purchaseLimit)
+        {
+            this.global = purchaseLimit.global;
+            this.perPlayer = purchaseLimit.perPlayer;
+        }
     }
 }

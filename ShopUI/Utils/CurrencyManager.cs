@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 namespace ItemShops.Utils
 {
-    class CurrencyHandler : MonoBehaviour
+    class CurrencyManager : MonoBehaviour
     {
         Dictionary<string, Action<Image>> CurrencyImageActions = new Dictionary<string, Action<Image>>();
 
@@ -15,7 +15,7 @@ namespace ItemShops.Utils
                 image.color = new Color32(118, 117, 35, 255);
             };
 
-        static CurrencyHandler instance;
+        static CurrencyManager instance;
 
         private void Awake()
         {
