@@ -321,7 +321,7 @@ namespace ItemShops.Utils
             try
             {
                 var purchaseItem = item.CreateItem(shopItem.ItemContainer);
-                DisableItemAnimations(purchaseItem, interact);
+                ItemShops.instance.ExecuteAfterSeconds(0.5f, () => DisableItemAnimations(purchaseItem, interact));
                 purchaseItem.GetOrAddComponent<RectTransform>().localScale = Vector3.one;
                 purchaseItem.GetOrAddComponent<RectTransform>().localPosition = Vector3.zero;
             }
@@ -488,7 +488,7 @@ namespace ItemShops.Utils
 
             foreach (var item in this.ShopItems.Values)
             {
-                item.GetComponent<Button>().interactable = (validItems.Contains(item));
+                item.gameObject.GetComponent<Button>().interactable = (validItems.Contains(item));
                 item.Darken.SetActive(!validItems.Contains(item));
             }
 
