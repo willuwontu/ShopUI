@@ -5,9 +5,9 @@ using UnityEngine.UI;
 
 namespace ItemShops.Utils
 {
-    class CurrencyManager : MonoBehaviour
+    public class CurrencyManager : MonoBehaviour
     {
-        Dictionary<string, Action<Image>> CurrencyImageActions = new Dictionary<string, Action<Image>>();
+        private Dictionary<string, Action<Image>> CurrencyImageActions = new Dictionary<string, Action<Image>>();
 
         private Action<Image> defaultImageAction = (image) => 
             { 
@@ -15,7 +15,21 @@ namespace ItemShops.Utils
                 image.color = new Color32(118, 117, 35, 255);
             };
 
-        static CurrencyManager instance;
+        public static CurrencyManager instance;
+
+        public Action<Image> CurrencyImageAction(string currency)
+        {
+            Action<Image> imageAction = null;
+            if (CurrencyImageActions.TryGetValue(currency, out var action))
+            {
+                imageAction = action;
+            }
+            else
+            {
+                imageAction = defaultImageAction;
+            }
+            return imageAction;
+        }
 
         private void Awake()
         {

@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using HarmonyLib;
+using ItemShops.Extensions;
 using ItemShops.Interfaces;
 using ItemShops.Utils;
 using UnboundLib;
@@ -61,6 +62,7 @@ namespace ItemShops
                     {
                         SoundContainer soundContainer = ScriptableObject.CreateInstance<SoundContainer>();
                         soundContainer.setting.volumeIntensityEnable = true;
+                        soundContainer.setting.volumeDecibel = 10f;
                         soundContainer.audioClip[0] = sound;
                         SoundEvent soundEvent = ScriptableObject.CreateInstance<SoundEvent>();
                         soundEvent.soundContainerArray[0] = soundContainer;
@@ -71,6 +73,7 @@ namespace ItemShops
                     {
                         SoundContainer soundContainer = ScriptableObject.CreateInstance<SoundContainer>();
                         soundContainer.setting.volumeIntensityEnable = true;
+                        soundContainer.setting.volumeDecibel = 10f;
                         soundContainer.audioClip[0] = sound;
                         SoundEvent soundEvent = ScriptableObject.CreateInstance<SoundEvent>();
                         soundEvent.soundContainerArray[0] = soundContainer;
@@ -86,24 +89,41 @@ namespace ItemShops
             gameObject.AddComponent<InterfaceGameModeHooksManager>();
             gameObject.AddComponent<ShopManager>();
             gameObject.AddComponent<CurrencyManager>();
-
-            this.ExecuteAfterSeconds(5f, Demo);
         }
 
-        private void Demo()
-        {
-            var shop = ShopManager.instance.CreateShop("Test Shop");
+        //private void Update()
+        //{
+        //    if (Input.GetKeyDown(KeyCode.I))
+        //    {
+        //        Shop shop = null;
+                    
+        //        if (ShopManager.instance.Shops.Count() > 0)
+        //        {
+        //            shop = ShopManager.instance.Shops[0];
+        //        }
+        //        else
+        //        {
+        //            shop = ShopManager.instance.CreateShop("Test Shop");
 
-            this.ExecuteAfterSeconds(10f, () =>
-            {
-                shop.AddItems(UnboundLib.Utils.CardManager.cards.Values.Select(card => new PurchasableCard(card.cardInfo, new Dictionary<string, int>(), new Tag[] { new Tag(card.category) })).ToArray().Take(30).ToArray());
-            });
-            this.ExecuteAfterSeconds(11f, () =>
-            {
-                shop.AddItem(UnboundLib.Utils.CardManager.cards.Values.Select(card => new PurchasableCard(card.cardInfo, new Dictionary<string, int>(), new Tag[] { new Tag(card.category) })).ToArray().GetRandom<Purchasable>());
-            });
+        //            this.ExecuteAfterSeconds(5f, () =>
+        //            {
+        //                shop.AddItems(UnboundLib.Utils.CardManager.cards.Values.Select(card => new PurchasableCard(card.cardInfo, new Dictionary<string, int> { { "Credits", 1 }, { "Banana", 2 } }, new Tag[] { new Tag(card.category), new Tag("Banana") })).ToArray().Take(30).ToArray());
+        //            });
+        //            this.ExecuteAfterSeconds(6f, () =>
+        //            {
+        //                shop.AddItem(UnboundLib.Utils.CardManager.cards.Values.Select(card => new PurchasableCard(card.cardInfo, new Dictionary<string, int>(), new Tag[] { new Tag(card.category) })).ToArray().GetRandom<Purchasable>());
+        //            });
+        //        }
 
-            shop.Show(shop.gameObject.AddComponent<Player>());
-        }
+        //        if (shop.IsOpen)
+        //        {
+        //            shop.Hide();
+        //        }
+        //        else
+        //        {
+        //            shop.Show(PlayerManager.instance.players[0]);
+        //        }
+        //    }
+        //}
     }
 }

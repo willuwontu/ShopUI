@@ -7,7 +7,7 @@ using ItemShops.Monobehaviours;
 
 namespace ItemShops.Utils
 {
-    class TagItem : MonoBehaviour
+    public class TagItem : MonoBehaviour
     {
         public Tag tag;
 
@@ -89,7 +89,7 @@ namespace ItemShops.Utils
         }
     }
 
-    enum FilterState
+    public enum FilterState
     {
         Allowed,
         Required,

@@ -10,7 +10,7 @@ using TMPro;
 
 namespace ItemShops.Utils
 {
-    class PurchasableCard : Purchasable
+    public class PurchasableCard : Purchasable
     {
         CardInfo _card;
         Dictionary<string, int> _cost;
@@ -52,6 +52,14 @@ namespace ItemShops.Utils
             this._cost = cost;
             this._tags = tags;
             this._name = card.cardName.ToUpper();
+        }
+
+        public PurchasableCard(CardInfo card, Dictionary<string, int> cost, Tag[] tags, string name)
+        {
+            this._card = card;
+            this._cost = cost;
+            this._tags = tags;
+            this._name = name;
         }
 
         public override void OnPurchase(Player player, Purchasable item)

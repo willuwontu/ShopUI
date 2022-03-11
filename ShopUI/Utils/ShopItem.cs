@@ -6,7 +6,7 @@ using ItemShops.Monobehaviours;
 
 namespace ItemShops.Utils
 {
-    class ShopItem : MonoBehaviour
+    public class ShopItem : MonoBehaviour
     {
         private ButtonInteraction interact;
         private Shop shop;
@@ -80,7 +80,7 @@ namespace ItemShops.Utils
 
         private void OnClick()
         {
-            //bleh;
+            shop.OnItemClicked(this);
         }
     }
 }

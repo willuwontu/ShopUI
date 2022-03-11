@@ -4,7 +4,7 @@ using System.Text;
 
 namespace ItemShops.Utils
 {
-    struct Tag
+    public struct Tag
     {
         public readonly string name;
 

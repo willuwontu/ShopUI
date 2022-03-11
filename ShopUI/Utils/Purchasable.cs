@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace ItemShops.Utils
 {
-    abstract class Purchasable
+    public abstract class Purchasable
     {
         public abstract string Name { get; }
         public abstract Dictionary<string, int> Cost { get; }
