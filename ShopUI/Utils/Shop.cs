@@ -27,7 +27,7 @@ namespace ItemShops.Utils
         }
         public string Name { get { return _name; } }
 
-        List<ShopItem> _items = new List<ShopItem>();
+        Dictionary<string, ShopItem> _items = new Dictionary<string, ShopItem>();
 
         ShopItem currentPurchase = null;
         Player currentPlayer = null;
@@ -134,70 +134,103 @@ namespace ItemShops.Utils
                 return _moneyContainer;
             }
         }
-        public ReadOnlyCollection<ShopItem> ShopItems
+        public ReadOnlyDictionary<string, ShopItem> ShopItems
         {
             get
             {
-                return new ReadOnlyCollection<ShopItem>(_items);
+                return new ReadOnlyDictionary<string, ShopItem>(_items);
             }
         }
 
-        public void UpdateName(string name)
+        public void UpdateTitle(string name)
         {
             this._name = name;
             this.Title.text = name;
         }
 
-        private ShopItem AddItem(Purchasable item, PurchaseLimit purchaseLimit, bool update)
+        private ShopItem AddItem(string itemID, Purchasable item, PurchaseLimit purchaseLimit, bool update)
         {
-            ShopItem shopItem = CreateItem(item, purchaseLimit);
-            shopItem.Purchasable = item;
-            _items.Add(shopItem);
+            ShopItem shopItem = null;
 
-            if (update)
+            try
             {
-                ShopManager.instance.ExecuteAfterFrames(2, UpdateItems);
-            }
+                if (_items.ContainsKey(itemID))
+                {
+                    throw new ArgumentException("'ShopItem::AddItem(string itemID, Purchasable item, PurchaseLimit purchaseLimit, bool update)' The itemID must be unique.");
+                }
 
+                shopItem = CreateItem(item, purchaseLimit);
+                shopItem.Purchasable = item;
+                shopItem.ID = itemID;
+                _items.Add(itemID, shopItem);
+
+                if (update)
+                {
+                    ShopManager.instance.ExecuteAfterFrames(2, UpdateItems);
+                }
+            }
+            catch (Exception e)
+            {
+                UnityEngine.Debug.LogException(e);
+            }
             return shopItem;
         }
 
-        public ShopItem AddItem(Purchasable item, PurchaseLimit purchaseLimit)
+        public ShopItem AddItem(string itemID, Purchasable item, PurchaseLimit purchaseLimit)
         {
-            return AddItem(item, purchaseLimit, true);
+            return AddItem(itemID, item, purchaseLimit, true);
         }
 
-        public ShopItem AddItem(Purchasable item)
+        public ShopItem AddItem(string itemID, Purchasable item)
         {
-            return AddItem(item, new PurchaseLimit(0, 0), true);
+            return AddItem(itemID, item, new PurchaseLimit(0, 0), true);
         }
 
-        public ShopItem[] AddItems(Purchasable[] items)
+        public ShopItem[] AddItems(string[] itemIDs, Purchasable[] items)
         {
-            ShopItem[] shopItems = items.Select(item => AddItem(item, new PurchaseLimit(0, 0), false)).ToArray();
-            ShopManager.instance.ExecuteAfterFrames(2, UpdateItems);
-            return shopItems;
-        }
-
-        public ShopItem[] AddItems(Purchasable[] items, PurchaseLimit purchaseLimit)
-        {
-            ShopItem[] shopItems = items.Select(item => AddItem(item, new PurchaseLimit(purchaseLimit), false)).ToArray();
-            ShopManager.instance.ExecuteAfterFrames(2, UpdateItems);
-            return shopItems;
-        }
-
-        public ShopItem[] AddItems(Purchasable[] items, PurchaseLimit[] purchaseLimits)
-        {
-            if (items.Length != purchaseLimits.Length)
+            if (items.Length != itemIDs.Length)
             {
-                throw new ArgumentException("'Shop::AddItems(Purchasable[] items, PurchaseLimit[] purchaseLimits)' expects 2 arrays of equal length.");
+                throw new ArgumentException("'Shop::AddItems(string[] itemIDs, Purchasable[] items)' expects 2 arrays of equal length.");
+            }
+            List<ShopItem> shopItems = new List<ShopItem>();
+            for (int i = 1; i < items.Length; i++)
+            {
+                shopItems.Add(AddItem(itemIDs[i], items[i], new PurchaseLimit(0, 0), false));
+            }
+
+            ShopManager.instance.ExecuteAfterFrames(2, UpdateItems);
+            return shopItems.ToArray();
+        }
+
+        public ShopItem[] AddItems(string[] itemIDs, Purchasable[] items, PurchaseLimit purchaseLimit)
+        {
+            if (items.Length != itemIDs.Length)
+            {
+                throw new ArgumentException("'Shop::AddItems(string[] itemIDs, Purchasable[] items, PurchaseLimit purchaseLimit)' The itemIDs and items arrays must be of equal length.");
+            }
+
+            List<ShopItem> shopItems = new List<ShopItem>();
+            for (int i = 1; i < items.Length; i++)
+            {
+                shopItems.Add(AddItem(itemIDs[i], items[i], new PurchaseLimit(purchaseLimit), false));
+            }
+
+            ShopManager.instance.ExecuteAfterFrames(2, UpdateItems);
+            return shopItems.ToArray();
+        }
+
+        public ShopItem[] AddItems(string[] itemIDs, Purchasable[] items, PurchaseLimit[] purchaseLimits)
+        {
+            if (items.Length != purchaseLimits.Length || items.Length != itemIDs.Length)
+            {
+                throw new ArgumentException("'Shop::AddItems(string[] itemIDs, Purchasable[] items, PurchaseLimit[] purchaseLimits)' expects 3 arrays of equal length.");
             }
 
             List<ShopItem> shopItems = new List<ShopItem>();
 
             for (int i = 1; i < items.Length; i++)
             {
-                shopItems.Add(AddItem(items[i], new PurchaseLimit(purchaseLimits[i]), false));
+                shopItems.Add(AddItem(itemIDs[i], items[i], new PurchaseLimit(purchaseLimits[i]), false));
             }
 
             ShopManager.instance.ExecuteAfterFrames(2, UpdateItems);
@@ -205,10 +238,13 @@ namespace ItemShops.Utils
             return shopItems.ToArray();
         }
 
-        public void RemoveItem(ShopItem item)
+        public void RemoveItem(string itemId)
         {
-            _items.Remove(item);
-            UnityEngine.GameObject.Destroy(item.gameObject);
+            if (_items.TryGetValue(itemId, out var item))
+            {
+                UnityEngine.GameObject.Destroy(item.gameObject);
+                _items.Remove(itemId);
+            }
             ShopManager.instance.ExecuteAfterFrames(2, UpdateItems);
         }
 
@@ -217,7 +253,7 @@ namespace ItemShops.Utils
             var shopItems = ShopItems.ToArray();
             foreach (var item in shopItems)
             {
-                UnityEngine.GameObject.Destroy(item.gameObject);
+                UnityEngine.GameObject.Destroy(item.Value.gameObject);
             }
             _items.Clear();
             UpdateItems();
@@ -338,7 +374,7 @@ namespace ItemShops.Utils
             string[] existingTags = tagItems.Select(tag => tag.tag.name).ToArray();
             List<string> itemTags = new List<string>();
             
-            foreach (var item in ShopItems)
+            foreach (var item in ShopItems.Values)
             {
                 itemTags.AddRange(item.Purchasable.Tags.Select(tag => tag.name));
             }
@@ -375,7 +411,7 @@ namespace ItemShops.Utils
             string[] excludedTags = tagItems.Where(tagItem => tagItem.FilterState == FilterState.Excluded).Select(tagItem => tagItem.tag).ToArray().Select(tag => tag.name).ToArray();
             string[] requiredTags = tagItems.Where(tagItem => tagItem.FilterState == FilterState.Required).Select(tagItem => tagItem.tag).ToArray().Select(tag => tag.name).ToArray();
 
-            ShopItem[] validItems = _items.Where(item => (!(excludedTags.Intersect(item.Purchasable.Tags.Select(tag=> tag.name).ToArray()).ToArray().Length > 0)) && (requiredTags.Intersect(item.Purchasable.Tags.Select(tag => tag.name).ToArray()).ToArray().Length == requiredTags.Length)).ToArray();
+            ShopItem[] validItems = _items.Values.Where(item => (!(excludedTags.Intersect(item.Purchasable.Tags.Select(tag=> tag.name).ToArray()).ToArray().Length > 0)) && (requiredTags.Intersect(item.Purchasable.Tags.Select(tag => tag.name).ToArray()).ToArray().Length == requiredTags.Length)).ToArray();
             
             if (Filter.text.Trim().Length > 0)
             {
@@ -385,7 +421,7 @@ namespace ItemShops.Utils
                 }).ToArray();
             }
 
-            foreach (var item in this.ShopItems)
+            foreach (var item in this.ShopItems.Values)
             {
                 item.gameObject.SetActive(validItems.Contains(item));
             }
@@ -453,12 +489,23 @@ namespace ItemShops.Utils
             {
                 if (player.GetAdditionalData().bankAccount.HasFunds(currentPurchase.Purchasable.Cost))
                 {
-                    currentPurchase.OnPurchase(player);
-                    UpdateMoney();
+                    NetworkingManager.RPC(typeof(Shop), nameof(URPCA_Purchase), new object[] { ID, player.playerID, currentPurchase.ID });
                     currentPurchase = null;
                     ClearPurchaseArea();
                 }
             }
+        }
+
+        [UnboundRPC]
+        private static void URPCA_Purchase(string shopID, int playerId, string purchase)
+        {
+            var player = PlayerManager.instance.GetPlayerWithID(playerId);
+            var shop = ShopManager.instance.Shops[shopID];
+            var item = shop._items[purchase];
+
+            player.GetAdditionalData().bankAccount.Withdraw(item.Purchasable.Cost);
+            shop.UpdateMoney();
+            item.OnPurchase(player);
         }
 
         private void Start()
@@ -467,5 +514,7 @@ namespace ItemShops.Utils
             var interact = PurchaseButton.gameObject.AddComponent<ButtonInteraction>();
             interact.mouseClick.AddListener(OnPurchaseClicked);
         }
+
+        internal string ID;
     }
 }

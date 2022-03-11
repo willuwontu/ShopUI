@@ -90,6 +90,11 @@ namespace ItemShops.Utils
             return canWithdraw;
         }
 
+        /// <summary>
+        /// Checks to see if a bank account has the requisite amount of money.
+        /// </summary>
+        /// <param name="money">The amount of money to check for.</param>
+        /// <returns>True if the bank account has the necessary funds, false if not.</returns>
         public bool HasFunds(Dictionary<string, int> money)
         {
             return money.All(resource => (this.money.TryGetValue(resource.Key, out int deposited) && deposited >= resource.Value));
