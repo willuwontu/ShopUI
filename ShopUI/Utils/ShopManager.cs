@@ -11,6 +11,7 @@ namespace ItemShops.Utils
     public class ShopManager : MonoBehaviour
     {
         public static ShopManager instance;
+        public static bool IsLockingInput { get; internal set; }
 
         internal Dictionary<string, Shop> _shops = new Dictionary<string, Shop>();
 
@@ -38,25 +39,25 @@ namespace ItemShops.Utils
 
         private void Start()
         {
-            shopCanvas = Instantiate(ItemShops.instance.assets.LoadAsset<GameObject>("ShopCanvas"));
+            this.shopCanvas = Instantiate(ItemShops.instance.assets.LoadAsset<GameObject>("ShopCanvas"));
             DontDestroyOnLoad(shopCanvas);
 
             RectTransform rect = shopCanvas.GetOrAddComponent<RectTransform>();
             rect.localScale = Vector3.one;
-            shopCanvas.GetComponent<Canvas>().worldCamera = Camera.current;
+            this.shopCanvas.GetComponent<Canvas>().worldCamera = Camera.current;
 
-            shopTemplate = ItemShops.instance.assets.LoadAsset<GameObject>("Shop");
-            tagObjectTemplate = ItemShops.instance.assets.LoadAsset<GameObject>("Tag Object");
-            costObjectTemplate = ItemShops.instance.assets.LoadAsset<GameObject>("Cost Object");
-            shopItemTemplate = ItemShops.instance.assets.LoadAsset<GameObject>("Shop Item");
-            cardContainerTemplate = ItemShops.instance.assets.LoadAsset<GameObject>("Card Container");
-            checkmark = ItemShops.instance.assets.LoadAsset<Sprite>("checkmark");
-            xmark = ItemShops.instance.assets.LoadAsset<Sprite>("xmark");
+            this.shopTemplate = ItemShops.instance.assets.LoadAsset<GameObject>("Shop");
+            this.tagObjectTemplate = ItemShops.instance.assets.LoadAsset<GameObject>("Tag Object");
+            this.costObjectTemplate = ItemShops.instance.assets.LoadAsset<GameObject>("Cost Object");
+            this.shopItemTemplate = ItemShops.instance.assets.LoadAsset<GameObject>("Shop Item");
+            this.cardContainerTemplate = ItemShops.instance.assets.LoadAsset<GameObject>("Card Container");
+            this.checkmark = ItemShops.instance.assets.LoadAsset<Sprite>("checkmark");
+            this.xmark = ItemShops.instance.assets.LoadAsset<Sprite>("xmark");
         }
 
         public Shop CreateShop(string id)
         {
-            if (_shops.ContainsKey(id))
+            if (this._shops.ContainsKey(id))
             {
                 throw new ArgumentException("ShopManager::CreateShop(string id) expects a unique id.");
             }
@@ -68,7 +69,7 @@ namespace ItemShops.Utils
             shop.UpdateTitle(id);
             shop.ID = id;
 
-            _shops.Add(id, shop);
+            this._shops.Add(id, shop);
 
             shop.Hide();
 
@@ -77,7 +78,7 @@ namespace ItemShops.Utils
 
         public void RemoveShop(Shop shop)
         {
-            _shops.Remove(shop.ID);
+            this._shops.Remove(shop.ID);
             UnityEngine.GameObject.Destroy(shop.gameObject);
         }
 
@@ -85,7 +86,7 @@ namespace ItemShops.Utils
         {
             Shop[] shops = Shops.Values.ToArray();
 
-            _shops.Clear();
+            this._shops.Clear();
 
             foreach (var shop in shops)
             {

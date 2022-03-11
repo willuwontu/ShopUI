@@ -17,6 +17,20 @@ namespace ItemShops.Utils
         FilterState _currentState = FilterState.Allowed;
         public FilterState FilterState => _currentState;
 
+        private GameObject _highlight = null;
+
+        public GameObject Highlight
+        {
+            get
+            {
+                if (!_highlight)
+                {
+                    _highlight = this.transform.Find("Highlight").gameObject;
+                }
+                return _highlight;
+            }
+        }
+
         private void Start()
         {
             interact = this.gameObject.GetComponent<ButtonInteraction>();
@@ -28,7 +42,7 @@ namespace ItemShops.Utils
             }
             interact.mouseClick.AddListener(OnClick);
 
-            stateImage = this.transform.Find("State Image").gameObject.GetComponent<Image>();
+            stateImage = this.transform.Find("Tag Container/State Image").gameObject.GetComponent<Image>();
             stateImage.color = Color.clear;
         }
 

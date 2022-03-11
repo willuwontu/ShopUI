@@ -120,7 +120,7 @@ namespace ItemShops.Utils
             return container;
         }
 
-        private IEnumerator ShowCard(Player player, CardInfo card)
+        public IEnumerator ShowCard(Player player, CardInfo card)
         {
             yield return ModdingUtils.Utils.CardBarUtils.instance.ShowImmediate(player, card, 2f);
 

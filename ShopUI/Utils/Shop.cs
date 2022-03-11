@@ -39,6 +39,7 @@ namespace ItemShops.Utils
         private TextMeshProUGUI _purchaseNameText = null;
         private GameObject _purchaseCostContainer = null;
         private Button _purchaseButton = null;
+        private GameObject _purchaseHighlight = null;
         private GameObject _moneyContainer = null;
 
         public TextMeshProUGUI Title
@@ -121,6 +122,17 @@ namespace ItemShops.Utils
                     _purchaseButton = this.gameObject.transform.Find("Shop Sections/Item Section/Purchase Area/Purchase Button").GetComponent<Button>();
                 }
                 return _purchaseButton;
+            }
+        }
+        public GameObject PurchaseHighlight
+        {
+            get
+            {
+                if (!_purchaseHighlight)
+                {
+                    _purchaseHighlight = this.PurchaseButton.transform.Find("Highlight").gameObject;
+                }
+                return _purchaseHighlight;
             }
         }
         public GameObject MoneyContainer
@@ -458,8 +470,6 @@ namespace ItemShops.Utils
 
             ShopItem[] validItems = _items.Values.Where(item => (!(excludedTags.Intersect(item.Purchasable.Tags.Select(tag=> tag.name).ToArray()).ToArray().Length > 0)) && (requiredTags.Intersect(item.Purchasable.Tags.Select(tag => tag.name).ToArray()).ToArray().Length == requiredTags.Length)).ToArray();
 
-            validItems = validItems.Where(item => item.IsItemPurchasable(currentPlayer)).ToArray();
-
             if (Filter.text.Trim().Length > 0)
             {
                 validItems = validItems.Where(item => 
@@ -471,6 +481,21 @@ namespace ItemShops.Utils
             foreach (var item in this.ShopItems.Values)
             {
                 item.gameObject.SetActive(validItems.Contains(item));
+            }
+
+            validItems = validItems.Where(item => item.IsItemPurchasable(currentPlayer)).ToArray();
+
+            foreach (var item in this.ShopItems.Values)
+            {
+                item.GetComponent<Button>().interactable = (validItems.Contains(item));
+                item.Darken.SetActive(!validItems.Contains(item));
+            }
+
+            tagItems = this.GetComponentsInChildren<TagItem>().OrderBy(item => item.tag.name).ToArray();
+
+            for (int i = 0; i < tagItems.Length; i++)
+            {
+                tagItems[i].transform.SetSiblingIndex(i);
             }
         }
 
