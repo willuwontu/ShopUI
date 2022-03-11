@@ -72,50 +72,42 @@ namespace ItemShops.Utils
 
         public override GameObject CreateItem(GameObject parent)
         {
-            GameObject container = GameObject.Instantiate(ItemShops.instance.assets.LoadAsset<GameObject>("Card Container"), parent.transform);
-            var holder = container.transform.Find("Card Holder").gameObject;
+            GameObject container = null;
+            GameObject holder = null;
 
-            var cardObj = GetCardVisuals(_card, holder);
-
-            Animator[] animators = cardObj.GetComponentsInChildren<Animator>();
-            PositionNoise[] noises = cardObj.GetComponentsInChildren<PositionNoise>();
-
-            foreach (var animator in animators)
+            try
             {
-                animator.enabled = false;
+                container = GameObject.Instantiate(ItemShops.instance.assets.LoadAsset<GameObject>("Card Container"));
+            }
+            catch (Exception)
+            {
+
+                UnityEngine.Debug.Log("Issue with creating the card container");
             }
 
-            foreach (var noise in noises)
+            try
             {
-                noise.enabled = false;
+                holder = container.transform.Find("Card Holder").gameObject;
+            }
+            catch (Exception)
+            {
+
+                UnityEngine.Debug.Log("Issue with getting the Card Holder");
+                holder = container.transform.GetChild(0).gameObject;
             }
 
-            var interact = parent.GetComponentInParent<ButtonInteraction>();
+            GameObject cardObj = null;
 
-            interact.mouseEnter.AddListener(() => 
+            try
             {
-                foreach (var animator in animators)
-                {
-                    animator.enabled = true;
-                }
-                foreach (var noise in noises)
-                {
-                    noise.enabled = true;
-                }
-            });
-
-            interact.mouseExit.AddListener(() =>
+                cardObj = GetCardVisuals(_card, holder);
+            }
+            catch (Exception)
             {
-                foreach (var animator in animators)
-                {
-                    animator.enabled = false;
-                }
+                UnityEngine.Debug.Log("Issue with getting card visuals");
+            }
 
-                foreach (var noise in noises)
-                {
-                    noise.enabled = false;
-                }
-            });
+            container.transform.SetParent(parent.transform);
 
             return container;
         }
