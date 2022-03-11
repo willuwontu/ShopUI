@@ -1,13 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 
 namespace ItemShops.Utils
 {
-    class BankAccount
+    public class BankAccount
     {
         private Dictionary<string, int> money = new Dictionary<string, int>();
 
+        public ReadOnlyDictionary<string, int> Money
+        {
+            get
+            {
+                return new ReadOnlyDictionary<string, int>(money);
+            }
+        }
         /// <summary>
         /// Adds money to the bank account.
         /// </summary>

@@ -9,14 +9,22 @@ using UnboundLib.Networking;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using ItemShops.Extensions;
 using ItemShops.Monobehaviours;
 
 namespace ItemShops.Utils
 {
-    class Shop : MonoBehaviour
+    public class Shop : MonoBehaviour
     {
         string _name;
 
+        public bool IsOpen
+        {
+            get
+            {
+                return this.gameObject.activeSelf;
+            }
+        }
         public string Name { get { return _name; } }
 
         List<ShopItem> _items = new List<ShopItem>();
@@ -227,12 +235,24 @@ namespace ItemShops.Utils
 
             item.CreateItem(shopItem.ItemContainer).GetComponent<RectTransform>().localScale = Vector3.one;
 
+            foreach (var cost in shopItem.Purchasable.Cost)
+            {
+                CreateCostItem(shopItem.CostContainer, cost.Key, cost.Value).GetComponent<RectTransform>().localScale = Vector3.one;
+            }
+
             return shopItem;
         }
 
-        private void CreateCostItem(string currency, int amount)
+        private GameObject CreateCostItem(GameObject parent, string currency, int amount)
         {
+            var costObj = Instantiate<GameObject>(ShopManager.instance.costObjectTemplate, parent.transform);
+            costObj.GetComponent<RectTransform>().localScale = Vector3.one;
 
+            var costItem = costObj.AddComponent<CostItem>();
+            costItem.Text.text = $"{amount}";
+            CurrencyManager.instance.CurrencyImageAction(currency)(costItem.Image);
+
+            return costObj;
         }
 
         public void Show(Player player)
@@ -244,11 +264,24 @@ namespace ItemShops.Utils
 
         private void UpdateMoney()
         {
-            // Make sure that the money container is empty.
+            foreach (Transform child in MoneyContainer.transform)
+            {
+                UnityEngine.GameObject.Destroy(child.gameObject);
+            }
+
+            if (currentPlayer)
+            {
+                foreach (var money in currentPlayer.GetAdditionalData().bankAccount.Money)
+                {
+                    CreateCostItem(this.MoneyContainer, money.Key, money.Value);
+                }
+            }
         }
 
         public void Hide()
         {
+            currentPlayer = null;
+            currentPurchase = null;
             this.gameObject.SetActive(false);
         }
 
@@ -288,11 +321,6 @@ namespace ItemShops.Utils
             UpdateFilters();
         }
 
-        private void CreateTagItem(Tag tag)
-        {
-
-        }
-
         internal void UpdateFilters()
         {
             var tagItems = this.GetComponentsInChildren<TagItem>();
@@ -327,17 +355,70 @@ namespace ItemShops.Utils
             UpdateFilters();
         }
 
+        internal void OnItemClicked(ShopItem item)
+        {
+            ClearPurchaseArea();
+
+            PurchaseNameText.text = item.Purchasable.Name;
+
+            foreach (var cost in item.Purchasable.Cost)
+            {
+                var costItem = CreateCostItem(PurchaseCostContainer, cost.Key, cost.Value).GetComponent<CostItem>();
+
+                if (currentPlayer && currentPlayer.GetAdditionalData().bankAccount.Money.TryGetValue(cost.Key, out var playerMoney))
+                {
+                    if (playerMoney < cost.Value)
+                    {
+                        costItem.Text.color = new Color32(235, 10, 10, 255);
+                    }
+                    else
+                    {
+                        costItem.Text.color = new Color32(225, 225, 225, 255);
+                    }
+                }
+                else
+                {
+                    costItem.Text.color = new Color32(235, 10, 10, 255);
+                }
+            }
+
+            currentPurchase = item;
+        }
+
+        public void ClearPurchaseArea()
+        {
+            PurchaseNameText.text = "";
+
+            foreach (Transform child in PurchaseCostContainer.transform)
+            {
+                UnityEngine.GameObject.Destroy(child.gameObject);
+            }
+        }
+
+        private void OnPurchaseClicked()
+        {
+            OnPurchaseClicked(currentPlayer);
+        }
+
         internal void OnPurchaseClicked(Player player)
         {
             if (currentPurchase != null)
             {
-
+                if (player.GetAdditionalData().bankAccount.Withdraw(currentPurchase.Purchasable.Cost))
+                {
+                    currentPurchase.OnPurchase(player);
+                    UpdateMoney();
+                    currentPurchase = null;
+                    ClearPurchaseArea();
+                }
             }
         }
 
         private void Start()
         {
             Filter.onValueChanged.AddListener((str)=> { UpdateFilters(); });
+            var interact = PurchaseButton.gameObject.AddComponent<ButtonInteraction>();
+            interact.mouseClick.AddListener(OnPurchaseClicked);
         }
     }
 }

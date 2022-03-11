@@ -12,7 +12,7 @@ using TMPro;
 
 namespace ItemShops.Utils
 {
-    class CostItem : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
+    public class CostItem : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     {
         public string Currency { get; internal set; }
 

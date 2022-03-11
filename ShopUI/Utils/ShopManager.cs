@@ -8,7 +8,7 @@ using TMPro;
 
 namespace ItemShops.Utils
 {
-    class ShopManager : MonoBehaviour
+    public class ShopManager : MonoBehaviour
     {
         public static ShopManager instance;
 

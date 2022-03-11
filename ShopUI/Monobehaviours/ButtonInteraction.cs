@@ -32,10 +32,11 @@ namespace ItemShops.Monobehaviours
         {
             if (button.interactable)
             {
+                //source.PlayOneShot(ItemShops.instance.hover[random.Next(ItemShops.instance.hover.Count)]);
                 SoundManager.Instance.Play(
                     ItemShops.instance.hoverSounds[random.Next(ItemShops.instance.hoverSounds.Count)],
                     base.transform,
-                    new SoundParameterBase[] { new SoundParameterIntensity(base.transform.localScale.x * Optionshandler.vol_Sfx * Optionshandler.vol_Master, UpdateMode.Once) }
+                    new SoundParameterBase[] { new SoundParameterIntensity(Optionshandler.vol_Sfx * Optionshandler.vol_Master, UpdateMode.Once) }
                     );
             }
         }
@@ -47,7 +48,7 @@ namespace ItemShops.Monobehaviours
                 SoundManager.Instance.Play(
                     ItemShops.instance.hoverSounds[random.Next(ItemShops.instance.hoverSounds.Count)],
                     base.transform,
-                    new SoundParameterBase[] { new SoundParameterIntensity(base.transform.localScale.x * Optionshandler.vol_Sfx * Optionshandler.vol_Master, UpdateMode.Once) }
+                    new SoundParameterBase[] { new SoundParameterIntensity(Optionshandler.vol_Sfx * Optionshandler.vol_Master, UpdateMode.Once) }
                     );
             }
         }
@@ -59,7 +60,7 @@ namespace ItemShops.Monobehaviours
                 SoundManager.Instance.Play(
                     ItemShops.instance.clickSounds[random.Next(ItemShops.instance.clickSounds.Count)],
                     base.transform,
-                    new SoundParameterBase[] { new SoundParameterIntensity(base.transform.localScale.x * Optionshandler.vol_Sfx * Optionshandler.vol_Master, UpdateMode.Once) }
+                    new SoundParameterBase[] { new SoundParameterIntensity(Optionshandler.vol_Sfx * Optionshandler.vol_Master, UpdateMode.Once) }
                     );
                 EventSystem.current.SetSelectedGameObject(null);
             }
