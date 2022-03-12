@@ -230,7 +230,7 @@ namespace ItemShops.Utils
                 throw new ArgumentException("'Shop::AddItems(string[] itemIDs, Purchasable[] items)' expects 2 arrays of equal length.");
             }
             List<ShopItem> shopItems = new List<ShopItem>();
-            for (int i = 1; i < items.Length; i++)
+            for (int i = 0; i < items.Length; i++)
             {
                 shopItems.Add(AddItem(itemIDs[i], items[i], new PurchaseLimit(0, 0), false));
             }
@@ -247,7 +247,7 @@ namespace ItemShops.Utils
             }
 
             List<ShopItem> shopItems = new List<ShopItem>();
-            for (int i = 1; i < items.Length; i++)
+            for (int i = 0; i < items.Length; i++)
             {
                 shopItems.Add(AddItem(itemIDs[i], items[i], new PurchaseLimit(purchaseLimit), false));
             }
@@ -265,7 +265,7 @@ namespace ItemShops.Utils
 
             List<ShopItem> shopItems = new List<ShopItem>();
 
-            for (int i = 1; i < items.Length; i++)
+            for (int i = 0; i < items.Length; i++)
             {
                 shopItems.Add(AddItem(itemIDs[i], items[i], new PurchaseLimit(purchaseLimits[i]), false));
             }
