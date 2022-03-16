@@ -100,6 +100,9 @@ namespace ItemShops.Utils
                 UnityEngine.Debug.Log("Issue with getting the Card Holder");
                 holder = container.transform.GetChild(0).gameObject;
             }
+            holder.transform.localPosition = new Vector3(0f, -100f, 0f);
+            holder.transform.localScale = new Vector3(0.125f, 0.125f, 1f);
+            holder.transform.Rotate(0f, 180f, 0f);
 
             GameObject cardObj = null;
 
@@ -107,9 +110,10 @@ namespace ItemShops.Utils
             {
                 cardObj = GetCardVisuals(_card, holder);
             }
-            catch (Exception)
+            catch (Exception e)
             {
                 UnityEngine.Debug.Log("Issue with getting card visuals");
+                UnityEngine.Debug.LogError(e);
             }
 
             container.transform.SetParent(parent.transform);
@@ -126,46 +130,24 @@ namespace ItemShops.Utils
 
         private GameObject GetCardVisuals(CardInfo card, GameObject parent)
         {
-            RectTransform rect = null;
-            GameObject cardObj= null;
-
-            try
-            {
-                cardObj = GameObject.Instantiate<GameObject>(card.gameObject.transform.GetChild(0).GetChild(0).gameObject, parent.gameObject.transform);
-            }
-            catch (Exception)
-            {
-                cardObj = GameObject.Instantiate<GameObject>(card.gameObject, parent.gameObject.transform);
-                var temp = cardObj;
-                cardObj = cardObj.GetComponentInChildren<Canvas>().gameObject;
-                cardObj.transform.SetParent(parent.gameObject.transform);
-
-                UnityEngine.GameObject.Destroy(temp);
-            }
+            GameObject cardObj = GameObject.Instantiate<GameObject>(card.gameObject, parent.gameObject.transform);
             cardObj.SetActive(true);
-
-            rect = cardObj.GetOrAddComponent<RectTransform>();
-            rect.localScale = Vector3.one;
+            cardObj.GetComponentInChildren<CardVisuals>().firstValueToSet = true;
+            RectTransform rect = cardObj.GetOrAddComponent<RectTransform>();
+            rect.localScale = 100f * Vector3.one;
             rect.anchorMin = Vector2.zero;
             rect.anchorMax = Vector2.one;
             rect.offsetMin = Vector2.zero;
             rect.offsetMax = Vector2.zero;
             rect.pivot = new Vector2(0.5f, 0.5f);
 
-            var rarityThings = cardObj.GetComponentsInChildren<CardRarityColor>();
-
-            foreach (var thing in rarityThings)
+            GameObject back = FindObjectInChildren(cardObj, "Back");
+            try
             {
-                try
-                {
-                    thing.GetComponentInParent<CardVisuals>().toggleSelectionAction = (Action<bool>)Delegate.Remove(thing.GetComponentInParent<CardVisuals>().toggleSelectionAction, new Action<bool>(thing.Toggle));
-                    UnityEngine.GameObject.Destroy(thing);
-                }
-                catch (Exception)
-                {
-                    UnityEngine.GameObject.Destroy(thing);
-                }
+                GameObject.Destroy(back);
             }
+            catch { }
+            FindObjectInChildren(cardObj, "BlockFront")?.SetActive(false);
 
             var canvasGroups = cardObj.GetComponentsInChildren<CanvasGroup>();
             foreach (var canvasGroup in canvasGroups)
@@ -173,50 +155,21 @@ namespace ItemShops.Utils
                 canvasGroup.alpha = 1;
             }
 
-            UnityEngine.GameObject.Destroy(cardObj.transform.Find("Back").gameObject);
-
-            var artHolder = cardObj.transform.Find("Front/Background/Art").gameObject;
-
-            try
+            ItemShops.instance.ExecuteAfterSeconds(0.5f, () =>
             {
-                var art = GameObject.Instantiate<GameObject>(card.cardArt, artHolder.transform);
-                rect = art.GetOrAddComponent<RectTransform>();
-                rect.localScale = Vector3.one;
-                rect.anchorMin = Vector2.zero;
-                rect.anchorMax = Vector2.one;
-                rect.offsetMin = Vector2.zero;
-                rect.offsetMax = Vector2.zero;
-                rect.pivot = new Vector2(0.5f, 0.5f);
-            }
-            catch (NullReferenceException)
-            {
+                //var particles = cardObj.GetComponentsInChildren<GeneralParticleSystem>().Select(system => system.gameObject);
+                //foreach (var particle in particles)
+                //{
+                //    UnityEngine.GameObject.Destroy(particle);
+                //}
 
-            }
-            catch (ArgumentNullException)
-            {
+                var titleText = FindObjectInChildren(cardObj, "Text_Name").GetComponent<TextMeshProUGUI>();
 
-            }
-            catch (ArgumentException)
-            {
-
-            }
-            catch (Exception e)
-            {
-                UnityEngine.Debug.LogException(e);
-            }
-
-            var particles = cardObj.GetComponentsInChildren<GeneralParticleSystem>().Select(system => system.gameObject);
-            foreach (var particle in particles)
-            {
-                UnityEngine.GameObject.Destroy(particle);
-            }
-
-            var titleText = FindObjectInChildren(cardObj, "Text_Name").GetComponent<TextMeshProUGUI>();
-
-            if ((titleText.color.r < 0.18f) && (titleText.color.g < 0.18f) && (titleText.color.b < 0.18f))
-            {
-                titleText.color = new Color32(200, 200, 200, 255);
-            }
+                if ((titleText.color.r < 0.18f) && (titleText.color.g < 0.18f) && (titleText.color.b < 0.18f))
+                {
+                    titleText.color = new Color32(200, 200, 200, 255);
+                }
+            });
 
             return cardObj;
         }
