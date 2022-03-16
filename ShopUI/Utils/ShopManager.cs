@@ -92,7 +92,7 @@ namespace ItemShops.Utils
             UnityEngine.GameObject.Destroy(shop.gameObject);
         }
 
-        public void ClearShops()
+        public void DestroyAllShops()
         {
             Shop[] shops = Shops.Values.ToArray();
 
@@ -101,6 +101,32 @@ namespace ItemShops.Utils
             foreach (var shop in shops)
             {
                 UnityEngine.GameObject.Destroy(shop.gameObject);
+            }
+        }
+
+        /// <summary>
+        /// Closes all shops for all players on this client.
+        /// </summary>
+        public void HideAllShops()
+        {
+            foreach (var shop in Shops.Values)
+            {
+                shop.Hide();
+            }
+        }
+
+        /// <summary>
+        /// Closes all shops for a specified player.
+        /// </summary>
+        /// <param name="player">The player to hide all shops from.</param>
+        public void HideAllShops(Player player)
+        {
+            foreach (var shop in Shops.Values)
+            {
+                if (shop.CurrentPlayer == player)
+                {
+                    shop.Hide();
+                }
             }
         }
     }

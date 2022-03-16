@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using UnityEngine;
 using UnityEngine.UI;
 using ItemShops.Monobehaviours;
+using TMPro;
 
 namespace ItemShops.Utils
 {
@@ -11,33 +12,45 @@ namespace ItemShops.Utils
     {
         private ButtonInteraction interact;
         private Shop shop;
-        private GameObject _itemContainer = null;
-        private GameObject _costContainer = null;
-        public GameObject ItemContainer
+        private TextMeshProUGUI _text;
+        //private GameObject _itemContainer = null;
+        //private GameObject _costContainer = null;
+        //public GameObject ItemContainer
+        //{
+        //    get
+        //    {
+        //        if (!_itemContainer)
+        //        {
+        //            _itemContainer = this.gameObject.transform.Find("Container/Item Holder").gameObject;
+        //        }
+
+        //        return _itemContainer;
+        //    }
+        //}
+        //public GameObject CostContainer
+        //{
+        //    get
+        //    {
+        //        if (!_costContainer)
+        //        {
+        //            _costContainer = this.gameObject.transform.Find("Container/Cost View/Viewport/Content").gameObject;
+        //        }
+
+        //        return _costContainer;
+        //    }
+        //}
+
+        public TextMeshProUGUI Text
         {
             get
             {
-                if (!_itemContainer)
+                if (!_text)
                 {
-                    _itemContainer = this.gameObject.transform.Find("Container/Item Holder").gameObject;
+                    _text = this.gameObject.transform.Find("Name").GetComponent<TextMeshProUGUI>();
                 }
-
-                return _itemContainer;
+                return _text;
             }
         }
-        public GameObject CostContainer
-        {
-            get
-            {
-                if (!_costContainer)
-                {
-                    _costContainer = this.gameObject.transform.Find("Container/Cost View/Viewport/Content").gameObject;
-                }
-
-                return _costContainer;
-            }
-        }
-
         private GameObject _highlight = null;
 
         public GameObject Highlight
@@ -113,6 +126,11 @@ namespace ItemShops.Utils
             }
 
             return canPurchase;
+        }
+
+        public void UpdateDisplayName(string name)
+        {
+            this.Text.text = name;
         }
 
         public void ResetPurchases()

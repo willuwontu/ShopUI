@@ -30,18 +30,36 @@ namespace ItemShops.Utils
         Dictionary<string, ShopItem> _items = new Dictionary<string, ShopItem>();
 
         ShopItem currentPurchase = null;
+
+        public ShopItem CurrentPurchase 
+        { 
+            get 
+            { 
+                return currentPurchase; 
+            } 
+        }
+
         internal ShopItem highlightedItem = null;
         Player currentPlayer = null;
-
+        public Player CurrentPlayer
+        {
+            get
+            {
+                return currentPlayer;
+            }
+        }
         private TextMeshProUGUI _title = null;
         private GameObject _tagContainer = null;
         private TMP_InputField _filter = null;
         private GameObject _itemContainer = null;
-        private TextMeshProUGUI _purchaseNameText = null;
+        //private TextMeshProUGUI _purchaseNameText = null;
+        private GameObject _purchaseItemObject = null;
         private GameObject _purchaseCostContainer = null;
         private Button _purchaseButton = null;
         private GameObject _purchaseHighlight = null;
         private GameObject _moneyContainer = null;
+
+        public Action<Player, ShopItem> itemPurchasedAction = null;
 
         public TextMeshProUGUI Title
         {
@@ -85,22 +103,33 @@ namespace ItemShops.Utils
             {
                 if (!_itemContainer)
                 {
-                    _itemContainer = this.gameObject.transform.Find("Shop Sections/Item Section/Item View/Viewport/Content/Grid").gameObject;
+                    _itemContainer = this.gameObject.transform.Find("Shop Sections/Item Section/Item Area/Item Selection/Viewport/Content").gameObject;
                 }
 
                 return _itemContainer;
             }
         }
-        public TextMeshProUGUI PurchaseNameText
+        //public TextMeshProUGUI PurchaseNameText
+        //{
+        //    get
+        //    {
+        //        if (!_purchaseNameText)
+        //        {
+        //            _purchaseNameText = this.gameObject.transform.Find("Shop Sections/Item Section/Purchase Area/Item Info/Name Container/Name").GetComponent<TextMeshProUGUI>();
+        //        }
+
+        //        return _purchaseNameText;
+        //    }
+        //}
+        public GameObject PurchaseItemObject
         {
             get
             {
-                if (!_purchaseNameText)
+                if (!_purchaseItemObject)
                 {
-                    _purchaseNameText = this.gameObject.transform.Find("Shop Sections/Item Section/Purchase Area/Item Info/Name Container/Name").GetComponent<TextMeshProUGUI>();
+                    _purchaseItemObject = this.gameObject.transform.Find("Shop Sections/Item Section/Item Area/Item Info/Item Container/Item Holder").gameObject;
                 }
-
-                return _purchaseNameText;
+                return _purchaseItemObject;
             }
         }
         public GameObject PurchaseCostContainer
@@ -109,7 +138,7 @@ namespace ItemShops.Utils
             {
                 if (!_purchaseCostContainer)
                 {
-                    _purchaseCostContainer = this.gameObject.transform.Find("Shop Sections/Item Section/Purchase Area/Item Info/Cost View/Viewport/Content").gameObject;
+                    _purchaseCostContainer = this.gameObject.transform.Find("Shop Sections/Item Section/Item Area/Item Info/Item Container/Cost View/Viewport/Content").gameObject;
                 }
                 return _purchaseCostContainer;
             }
@@ -120,7 +149,7 @@ namespace ItemShops.Utils
             {
                 if (!_purchaseButton)
                 {
-                    _purchaseButton = this.gameObject.transform.Find("Shop Sections/Item Section/Purchase Area/Purchase Button").GetComponent<Button>();
+                    _purchaseButton = this.gameObject.transform.Find("Shop Sections/Item Section/Item Area/Item Info/Item Container/Purchase Button").GetComponent<Button>();
                 }
                 return _purchaseButton;
             }
@@ -317,23 +346,7 @@ namespace ItemShops.Utils
             var shopItem = itemObj.AddComponent<ShopItem>();
             shopItem.Purchasable = item;
             shopItem.PurchaseLimit = purchaseLimit;
-
-            try
-            {
-                var purchaseItem = item.CreateItem(shopItem.ItemContainer);
-                ItemShops.instance.ExecuteAfterSeconds(0.5f, () => DisableItemAnimations(purchaseItem, interact));
-                purchaseItem.GetOrAddComponent<RectTransform>().localScale = Vector3.one;
-                purchaseItem.GetOrAddComponent<RectTransform>().localPosition = Vector3.zero;
-            }
-            catch (Exception e)
-            {
-                UnityEngine.Debug.LogException(e);
-            }
-
-            foreach (var cost in shopItem.Purchasable.Cost)
-            {
-                CreateCostItem(shopItem.CostContainer, cost.Key, cost.Value).GetOrAddComponent<RectTransform>().localScale = Vector3.one;
-            }
+            shopItem.UpdateDisplayName(item.Name);
 
             return shopItem;
         }
@@ -423,10 +436,11 @@ namespace ItemShops.Utils
         {
             currentPlayer = null;
             currentPurchase = null;
+            ClearPurchaseArea();
             this.gameObject.SetActive(false);
         }
 
-        private void UpdateItems()
+        public void UpdateItems()
         {
             var tagItems = this.GetComponentsInChildren<TagItem>();
             string[] existingTags = tagItems.Select(tag => tag.tag.name).ToArray();
@@ -515,7 +529,16 @@ namespace ItemShops.Utils
         {
             ClearPurchaseArea();
 
-            PurchaseNameText.text = item.Purchasable.Name;
+            try
+            {
+                var purchaseItem = item.Purchasable.CreateItem(this.PurchaseItemObject);
+                purchaseItem.GetOrAddComponent<RectTransform>().localScale = Vector3.one;
+                purchaseItem.GetOrAddComponent<RectTransform>().localPosition = Vector3.zero;
+            }
+            catch (Exception e)
+            {
+                UnityEngine.Debug.LogException(e);
+            }
 
             foreach (var cost in item.Purchasable.Cost)
             {
@@ -543,7 +566,10 @@ namespace ItemShops.Utils
 
         public void ClearPurchaseArea()
         {
-            PurchaseNameText.text = "";
+            foreach (Transform child in PurchaseItemObject.transform)
+            {
+                UnityEngine.GameObject.Destroy(child.gameObject);
+            }
 
             foreach (Transform child in PurchaseCostContainer.transform)
             {
@@ -579,6 +605,18 @@ namespace ItemShops.Utils
             player.GetAdditionalData().bankAccount.Withdraw(item.Purchasable.Cost);
             shop.UpdateMoney();
             item.OnPurchase(player);
+
+            if (shop.itemPurchasedAction != null)
+            {
+                try
+                {
+                    shop.itemPurchasedAction(player, item);
+                }
+                catch (Exception e)
+                {
+                    UnityEngine.Debug.LogException(e);
+                }
+            }
         }
 
         private void Start()
