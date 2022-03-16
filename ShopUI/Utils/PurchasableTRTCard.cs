@@ -100,8 +100,9 @@ namespace ItemShops.Utils
                 UnityEngine.Debug.Log("Issue with getting the Card Holder");
                 holder = container.transform.GetChild(0).gameObject;
             }
-            holder.transform.localPosition = new Vector3(0f, -95f, 0f);
-            holder.transform.localScale = new Vector3(0.11f, 0.11f, 1f);
+            holder.transform.localPosition = new Vector3(0f, -100f, 0f);
+            holder.transform.localScale = new Vector3(0.125f, 0.125f, 1f);
+            holder.transform.Rotate(0f, 180f, 0f);
 
             GameObject cardObj = null;
 
@@ -132,6 +133,7 @@ namespace ItemShops.Utils
 
             GameObject cardObj = GameObject.Instantiate<GameObject>(card.gameObject, parent.gameObject.transform);
             cardObj.SetActive(true);
+            cardObj.GetComponentInChildren<CardVisuals>().firstValueToSet = true;
             RectTransform rect = cardObj.GetOrAddComponent<RectTransform>();
             rect.localScale = 100f * Vector3.one;
             rect.anchorMin = Vector2.zero;
@@ -154,14 +156,14 @@ namespace ItemShops.Utils
                 canvasGroup.alpha = 1;
             }
 
-            var particles = cardObj.GetComponentsInChildren<GeneralParticleSystem>().Select(system => system.gameObject);
-            foreach (var particle in particles)
-            {
-                UnityEngine.GameObject.Destroy(particle);
-            }
-
             ItemShops.instance.ExecuteAfterSeconds(0.5f, () =>
             {
+                //var particles = cardObj.GetComponentsInChildren<GeneralParticleSystem>().Select(system => system.gameObject);
+                //foreach (var particle in particles)
+                //{
+                //    UnityEngine.GameObject.Destroy(particle);
+                //}
+
                 var titleText = FindObjectInChildren(cardObj, "Text_Name").GetComponent<TextMeshProUGUI>();
 
                 if ((titleText.color.r < 0.18f) && (titleText.color.g < 0.18f) && (titleText.color.b < 0.18f))
