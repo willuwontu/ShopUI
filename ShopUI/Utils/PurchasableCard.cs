@@ -155,13 +155,27 @@ namespace ItemShops.Utils
                 canvasGroup.alpha = 1;
             }
 
-            ItemShops.instance.ExecuteAfterSeconds(0.5f, () =>
+            ItemShops.instance.ExecuteAfterSeconds(0.2f, () =>
             {
                 //var particles = cardObj.GetComponentsInChildren<GeneralParticleSystem>().Select(system => system.gameObject);
                 //foreach (var particle in particles)
                 //{
                 //    UnityEngine.GameObject.Destroy(particle);
                 //}
+
+                var rarities = cardObj.GetComponentsInChildren<CardRarityColor>();
+
+                foreach (var rarity in rarities)
+                {
+                    try
+                    {
+                        rarity.Toggle(true);
+                    }
+                    catch
+                    {
+
+                    }
+                }
 
                 var titleText = FindObjectInChildren(cardObj, "Text_Name").GetComponent<TextMeshProUGUI>();
 

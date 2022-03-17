@@ -9,7 +9,7 @@ namespace ItemShops.Utils
 {
     public class TagItem : MonoBehaviour
     {
-        public Tag tag;
+        public Tag Tag;
 
         ButtonInteraction interact;
         Shop shop;

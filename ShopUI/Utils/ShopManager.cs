@@ -27,6 +27,8 @@ namespace ItemShops.Utils
 
         public ReadOnlyDictionary<string, Shop> Shops { get { return new ReadOnlyDictionary<string, Shop>(this._shops); } }
 
+        public Shop CurrentShop { get; internal set; }
+
         internal GameObject shopCanvas;
 
         private GameObject shopTemplate;

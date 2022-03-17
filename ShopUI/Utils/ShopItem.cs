@@ -149,23 +149,23 @@ namespace ItemShops.Utils
                 return;
             }
             interact.mouseClick.AddListener(OnClick);
-            interact.mouseEnter.AddListener(() => 
-            { 
-                Highlight.SetActive(true);  
-                if (shop.highlightedItem)
-                {
-                    shop.highlightedItem.GetComponent<ButtonInteraction>().mouseExit?.Invoke();
-                }
-                shop.highlightedItem = this; 
-            });
-            interact.mouseExit.AddListener(() => 
-            { 
-                Highlight.SetActive(false); 
-                if (this == shop.highlightedItem)
-                {
-                    shop.highlightedItem = null;
-                }
-            });
+            //interact.mouseEnter.AddListener(() => 
+            //{ 
+            //    Highlight.SetActive(true);  
+            //    if (shop.highlightedItem)
+            //    {
+            //        shop.highlightedItem.GetComponent<ButtonInteraction>().mouseExit?.Invoke();
+            //    }
+            //    shop.highlightedItem = this; 
+            //});
+            //interact.mouseExit.AddListener(() => 
+            //{ 
+            //    Highlight.SetActive(false); 
+            //    if (this == shop.highlightedItem)
+            //    {
+            //        shop.highlightedItem = null;
+            //    }
+            //});
         }
 
         private void OnClick()

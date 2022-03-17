@@ -26,6 +26,7 @@ namespace ItemShops.Utils
             }
         }
         public string Name { get { return _name; } }
+        public bool HideInvalidItems { get; set; } = false;
 
         Dictionary<string, ShopItem> _items = new Dictionary<string, ShopItem>();
 
@@ -85,6 +86,7 @@ namespace ItemShops.Utils
                 return _tagContainer;
             }
         }
+        internal bool filterSelected = false;
         public TMP_InputField Filter
         {
             get
@@ -92,11 +94,28 @@ namespace ItemShops.Utils
                 if (!_filter)
                 {
                     _filter = this.gameObject.transform.Find("Shop Sections/Filter Section/Item Filter").GetComponent<TMP_InputField>();
+                    var handler = _filter.gameObject.AddComponent<FilterHandler>();
+                    handler.shop = this;
                 }
 
                 return _filter;
             }
         }
+
+        private class FilterHandler : MonoBehaviour, UnityEngine.EventSystems.ISelectHandler, UnityEngine.EventSystems.IDeselectHandler
+        {
+            public Shop shop = null;
+            public void OnDeselect(UnityEngine.EventSystems.BaseEventData data)
+            {
+                this.ExecuteAfterFrames(1, () => { shop.filterSelected = false; });
+            }
+
+            public void OnSelect(UnityEngine.EventSystems.BaseEventData data)
+            {
+                shop.filterSelected = true;
+            }
+        }
+
         public GameObject ItemContainer
         {
             get
@@ -185,7 +204,7 @@ namespace ItemShops.Utils
             {
                 if (!_scrollRect)
                 {
-                    _scrollRect = this.gameObject.transform.Find("Shop Sections/Item Section/Item View").GetComponent<ScrollRect>();
+                    _scrollRect = this.gameObject.transform.Find("Shop Sections/Item Section/Item Area/Item Selection").GetComponent<ScrollRect>();
                 }
 
                 return _scrollRect;
@@ -409,11 +428,13 @@ namespace ItemShops.Utils
 
         public void Show(Player player)
         {
+            ShopManager.instance.HideAllShops();
             currentPlayer = player;
 
             UpdateMoney();
             UpdateFilters();
             this.gameObject.SetActive(true);
+            ShopManager.instance.CurrentShop = this;
         }
 
         private void UpdateMoney()
@@ -438,12 +459,15 @@ namespace ItemShops.Utils
             currentPurchase = null;
             ClearPurchaseArea();
             this.gameObject.SetActive(false);
+            ShopManager.instance.CurrentShop = null;
+            selectedItem = null;
+            selectedRow = new int[3];
         }
 
         public void UpdateItems()
         {
             var tagItems = this.GetComponentsInChildren<TagItem>();
-            string[] existingTags = tagItems.Select(tag => tag.tag.name).ToArray();
+            string[] existingTags = tagItems.Select(tag => tag.Tag.name).ToArray();
             List<string> itemTags = new List<string>();
             
             foreach (var item in ShopItems.Values)
@@ -463,10 +487,10 @@ namespace ItemShops.Utils
                 tagObj.AddComponent<ButtonInteraction>();
 
                 var tagItem = tagObj.AddComponent<TagItem>();
-                tagItem.tag = new Tag(item);
+                tagItem.Tag = new Tag(item);
             }
 
-            foreach (var tagItem in tagItems.Where(item => ghostTags.Contains(item.tag.name)))
+            foreach (var tagItem in tagItems.Where(item => ghostTags.Contains(item.Tag.name)))
             {
                 UnityEngine.GameObject.Destroy(tagItem.gameObject);
             }
@@ -480,8 +504,8 @@ namespace ItemShops.Utils
         {
             var tagItems = this.GetComponentsInChildren<TagItem>();
 
-            string[] excludedTags = tagItems.Where(tagItem => tagItem.FilterState == FilterState.Excluded).Select(tagItem => tagItem.tag).ToArray().Select(tag => tag.name).ToArray();
-            string[] requiredTags = tagItems.Where(tagItem => tagItem.FilterState == FilterState.Required).Select(tagItem => tagItem.tag).ToArray().Select(tag => tag.name).ToArray();
+            string[] excludedTags = tagItems.Where(tagItem => tagItem.FilterState == FilterState.Excluded).Select(tagItem => tagItem.Tag).ToArray().Select(tag => tag.name).ToArray();
+            string[] requiredTags = tagItems.Where(tagItem => tagItem.FilterState == FilterState.Required).Select(tagItem => tagItem.Tag).ToArray().Select(tag => tag.name).ToArray();
 
             ShopItem[] validItems = _items.Values.Where(item => (!(excludedTags.Intersect(item.Purchasable.Tags.Select(tag=> tag.name).ToArray()).ToArray().Length > 0)) && (requiredTags.Intersect(item.Purchasable.Tags.Select(tag => tag.name).ToArray()).ToArray().Length == requiredTags.Length)).ToArray();
 
@@ -506,7 +530,7 @@ namespace ItemShops.Utils
                 item.Darken.SetActive(!validItems.Contains(item));
             }
 
-            tagItems = this.GetComponentsInChildren<TagItem>().OrderBy(item => item.tag.name).ToArray();
+            tagItems = this.GetComponentsInChildren<TagItem>().OrderBy(item => item.Tag.name).ToArray();
 
             for (int i = 0; i < tagItems.Length; i++)
             {
@@ -562,6 +586,13 @@ namespace ItemShops.Utils
             }
 
             currentPurchase = item;
+            if (selectedItem)
+            {
+                this.selectedItem.transform.Find("Highlight").gameObject.SetActive(false);
+            }
+            selectedItem = item.gameObject;
+            selectedRow[1] = selectedItem.transform.GetSiblingIndex();
+            this.selectedItem.transform.Find("Highlight").gameObject.SetActive(true);
         }
 
         public void ClearPurchaseArea()
@@ -624,6 +655,173 @@ namespace ItemShops.Utils
             Filter.onValueChanged.AddListener((str)=> { UpdateFilters(); });
             var interact = PurchaseButton.gameObject.AddComponent<ButtonInteraction>();
             interact.mouseClick.AddListener(OnPurchaseClicked);
+        }
+
+        private int[] selectedRow = new int[3];
+        private int selectedColumn = 1;
+        private GameObject selectedItem;
+        private float timeHeld = 0f;
+        private float delay = 0.5f;
+        private float spacing = 0.1f/3f;
+        private bool finishedDelay = false;
+        private Vector2 lastDirection = Vector2.zero;
+
+        private int GetColumnMax(int column)
+        {
+            int max = 0;
+            switch (column)
+            {
+                case 0:
+                    var visibleTags = this.TagContainer.GetComponentsInChildren<TagItem>().Where(item => item.gameObject.activeSelf).ToArray();
+                    max = visibleTags.Count();
+                    break;
+                case 1:
+                    var visibleItems = this.ItemContainer.GetComponentsInChildren<ShopItem>().Where(item => item.gameObject.activeSelf).ToArray();
+                    max = visibleItems.Count() - 1;
+                    break;
+            }
+
+            return max;
+        }
+
+        private bool ActionWasPressed(PlayerActions playerActions)
+        {
+            if (playerActions.Move.WasPressed)
+            {
+                lastDirection = new Vector2(playerActions.Move.Value.x, playerActions.Move.Value.y * -1f);
+            }
+
+            return (playerActions.Move.WasPressed || playerActions.Jump.WasPressed);
+        }
+
+        private bool ActionHeldDown(PlayerActions playerActions)
+        {
+            if (playerActions.Move.IsPressed && !playerActions.Move.WasPressed)
+            {
+                timeHeld += TimeHandler.deltaTime;
+
+                if ((!finishedDelay && (timeHeld > delay)) || (finishedDelay && (timeHeld > spacing)))
+                {
+                    timeHeld = 0f;
+                    finishedDelay = true;
+                    lastDirection = new Vector2(playerActions.Move.Value.x, playerActions.Move.Value.y * -1f);
+                    return true;
+                }
+                else
+                {
+                    lastDirection = Vector2.zero;
+                }
+            }
+
+            return false;
+        }
+
+        private void CheckForReleasedActions(PlayerActions playerActions)
+        {
+            if (playerActions.Move.WasReleased)
+            {
+                finishedDelay = false;
+                lastDirection = Vector2.zero;
+            }
+        }
+
+        private GameObject GetSelectedItem()
+        {
+            GameObject item = null;
+            switch (selectedColumn)
+            {
+                case 0:
+                    if (selectedRow[selectedColumn] == 0)
+                    {
+                        item = this.Filter.gameObject;
+                    }
+                    else
+                    {
+                        var visibleTags = this.TagContainer.GetComponentsInChildren<TagItem>().Where(item => item.gameObject.activeSelf).ToArray();
+                        item = visibleTags[selectedRow[selectedColumn]-1].gameObject;
+                        this.TagContainer.transform.parent.parent.gameObject.GetComponent<ScrollRect>().VerticalScrollToChild(item);
+                    }
+                    break;
+                case 1:
+                    var visibleItems = this.ItemContainer.GetComponentsInChildren<ShopItem>().Where(item => item.gameObject.activeSelf).ToArray();
+                    item = visibleItems[selectedRow[selectedColumn]].gameObject;
+                    this.ItemContainer.transform.parent.parent.gameObject.GetComponent<ScrollRect>().VerticalScrollToChild(item);
+                    break;
+                case 2:
+                    item = this.PurchaseButton.gameObject;
+                    break;
+            }
+
+            return item;
+        }
+
+        private void HandleControllerMovement(Player player)
+        {
+            var playerActions = player.data.playerActions;
+            this.CheckForReleasedActions(playerActions);
+            if (this.ActionWasPressed(playerActions) || this.ActionHeldDown(playerActions))
+            {
+                if (!this.Filter.isFocused)
+                {
+                    if (this.selectedItem != null)
+                    {
+                        int x = Mathf.Clamp((int)(this.lastDirection.x * 10f), -1, 1);
+                        int y = Mathf.Clamp((int)(this.lastDirection.y * 10f), -1, 1);
+
+                        this.selectedColumn += x;
+                        this.selectedColumn = Mathf.Clamp(this.selectedColumn, 0, 2);
+
+                        this.selectedRow[this.selectedColumn] += y;
+                        this.selectedRow[this.selectedColumn] = Mathf.Clamp(this.selectedRow[this.selectedColumn], 0, this.GetColumnMax(this.selectedColumn));
+
+                        UnityEngine.Debug.Log($"Selected Item: {this.selectedColumn}, {this.selectedRow[this.selectedColumn]}");
+                    }
+
+                    GameObject item = this.GetSelectedItem();
+
+                    if (item != null && this.selectedItem != null && item != this.selectedItem)
+                    {
+                        this.selectedItem.transform.Find("Highlight").gameObject.SetActive(false);
+                        this.selectedItem = null;
+                        UnityEngine.EventSystems.EventSystem.current.SetSelectedGameObject(null);
+                    }
+
+                    this.selectedItem = item;
+                    this.selectedItem.transform.Find("Highlight").gameObject.SetActive(true);
+
+                    if (playerActions.Jump.WasPressed)
+                    {
+                        switch (this.selectedColumn)
+                        {
+                            case 0:
+                                if (this.selectedRow[selectedColumn] == 0)
+                                {
+                                    this.Filter.Select();
+                                    this.Filter.ActivateInputField();
+                                }
+                                else
+                                {
+                                    this.selectedItem.GetComponent<ButtonInteraction>().mouseClick?.Invoke();
+                                }
+                                break;
+                            case 1:
+                                this.selectedItem.GetComponent<ButtonInteraction>().mouseClick?.Invoke();
+                                break;
+                            case 2:
+                                this.selectedItem.GetComponent<ButtonInteraction>().mouseClick?.Invoke();
+                                break;
+                        }
+                    } 
+                }
+            }
+        }
+
+        private void Update()
+        {
+            if (currentPlayer != null)
+            {
+                HandleControllerMovement(currentPlayer);
+            }
         }
 
         internal string ID;
