@@ -17,7 +17,7 @@ namespace ItemShops.Patches
             if (shopOpen)
             {
                 // Check to see if the filter of the shop is in use.
-                // Known issue, there's no way to get when 
+                // Known issue, there's no way to get when the filter is just being unfocused (and thus typable)
                 if (ShopManager.instance.CurrentShop && ShopManager.instance.CurrentShop.filterSelected)
                 {
                     UnityEngine.EventSystems.EventSystem.current.SetSelectedGameObject(null);

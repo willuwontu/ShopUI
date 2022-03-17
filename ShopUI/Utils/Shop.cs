@@ -774,7 +774,7 @@ namespace ItemShops.Utils
                         this.selectedRow[this.selectedColumn] += y;
                         this.selectedRow[this.selectedColumn] = Mathf.Clamp(this.selectedRow[this.selectedColumn], 0, this.GetColumnMax(this.selectedColumn));
 
-                        UnityEngine.Debug.Log($"Selected Item: {this.selectedColumn}, {this.selectedRow[this.selectedColumn]}");
+                        //UnityEngine.Debug.Log($"Selected Item: {this.selectedColumn}, {this.selectedRow[this.selectedColumn]}");
                     }
 
                     GameObject item = this.GetSelectedItem();

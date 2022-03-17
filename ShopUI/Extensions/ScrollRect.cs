@@ -22,6 +22,8 @@ namespace ItemShops.Extensions
 
             var scrollBarPos = 1f - ((childCenter / contentAdjustedSize) - ((scrollSize / 2f) / contentAdjustedSize));
 
+            //UnityEngine.Debug.Log($"Setting Scrollbar position to {string.Format("{0:F2}", scrollBarPos)}%\nCenter: {childCenter}\nContentSize: {contentSize}\nViewport Size: {scrollSize}\nAjusted Size: {contentAdjustedSize}");
+
             scrollRect.verticalScrollbar.value = scrollBarPos;
         }
     }
