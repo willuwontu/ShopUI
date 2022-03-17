@@ -648,6 +648,8 @@ namespace ItemShops.Utils
                     UnityEngine.Debug.LogException(e);
                 }
             }
+
+            shop.UpdateItems();
         }
 
         private void Start()
