@@ -10,6 +10,11 @@ using TMPro;
 
 namespace ItemShops.Utils
 {
+    /// <summary>
+    /// A Purchasable Class for handling the purchasing of cards.
+    /// 
+    /// See also <seealso cref="Purchasable"/>.
+    /// </summary>
     public class PurchasableCard : Purchasable
     {
         CardInfo _card;
@@ -17,6 +22,9 @@ namespace ItemShops.Utils
         Tag[] _tags;
         string _name;
 
+        /// <summary>
+        /// The card associated with the item.
+        /// </summary>
         public CardInfo Card
         {
             get
@@ -32,6 +40,7 @@ namespace ItemShops.Utils
                 return _cost;
             }
         }
+
         public override Tag[] Tags
         {
             get
@@ -39,6 +48,8 @@ namespace ItemShops.Utils
                 return _tags;
             }
         }
+
+
         public override string Name
         {
             get
@@ -46,6 +57,13 @@ namespace ItemShops.Utils
                 return _name;
             }
         }
+
+        /// <summary>
+        /// Creates a Purchasable Card item.
+        /// </summary>
+        /// <param name="card">The card associated with the item.</param>
+        /// <param name="cost">The item's cost.</param>
+        /// <param name="tags">Any tags that the item has.</param>
         public PurchasableCard(CardInfo card, Dictionary<string, int> cost, Tag[] tags)
         {
             this._card = card;
@@ -54,6 +72,13 @@ namespace ItemShops.Utils
             this._name = card.cardName.ToUpper();
         }
 
+        /// <summary>
+        /// Creates a Purchasable Card item.
+        /// </summary>
+        /// <param name="card">The card associated with the item.</param>
+        /// <param name="cost">The item's cost.</param>
+        /// <param name="tags">Any tags that the item has.</param>
+        /// <param name="name">The name for the item, if different from the card's name.</param>
         public PurchasableCard(CardInfo card, Dictionary<string, int> cost, Tag[] tags, string name)
         {
             this._card = card;
@@ -121,7 +146,13 @@ namespace ItemShops.Utils
             return container;
         }
 
-        public IEnumerator ShowCard(Player player, CardInfo card)
+        /// <summary>
+        /// Shows a card in the card bar.
+        /// </summary>
+        /// <param name="player">The player to show the card for.</param>
+        /// <param name="card">The card to show.</param>
+        /// <returns>An <see cref="IEnumerator"/> used to display the card.</returns>
+        public static IEnumerator ShowCard(Player player, CardInfo card)
         {
             yield return ModdingUtils.Utils.CardBarUtils.instance.ShowImmediate(player, card, 2f);
 

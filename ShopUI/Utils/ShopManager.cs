@@ -8,9 +8,18 @@ using TMPro;
 
 namespace ItemShops.Utils
 {
+    /// <summary>
+    /// A class for handling all item shops.
+    /// </summary>
     public class ShopManager : MonoBehaviour
     {
+        /// <summary>
+        /// A static instance of the shop manager for accssing its functions.
+        /// </summary>
         public static ShopManager instance;
+        /// <summary>
+        /// Whether or not a shop is open and locking player input.
+        /// </summary>
         public static bool isLockingInput
         {
             get
@@ -24,9 +33,13 @@ namespace ItemShops.Utils
         }
 
         internal Dictionary<string, Shop> _shops = new Dictionary<string, Shop>();
-
+        /// <summary>
+        /// A dictionary containing all created shops.
+        /// </summary>
         public ReadOnlyDictionary<string, Shop> Shops { get { return new ReadOnlyDictionary<string, Shop>(this._shops); } }
-
+        /// <summary>
+        /// The currently open shop for the client.
+        /// </summary>
         public Shop CurrentShop { get; internal set; }
 
         internal GameObject shopCanvas;
@@ -66,7 +79,11 @@ namespace ItemShops.Utils
             this.checkmark = ItemShops.instance.assets.LoadAsset<Sprite>("checkmark");
             this.xmark = ItemShops.instance.assets.LoadAsset<Sprite>("xmark");
         }
-
+        /// <summary>
+        /// Creates a <see cref="Shop"/> for purchasing items from.
+        /// </summary>
+        /// <param name="id">A unique ID to register the shop with.</param>
+        /// <returns>The created shop.</returns>
         public Shop CreateShop(string id)
         {
             if (this._shops.ContainsKey(id))
@@ -88,12 +105,19 @@ namespace ItemShops.Utils
             return shop;
         }
 
+        /// <summary>
+        /// Destroys a specified shop.
+        /// </summary>
+        /// <param name="shop">The shop to destroy.</param>
         public void RemoveShop(Shop shop)
         {
             this._shops.Remove(shop.ID);
             UnityEngine.GameObject.Destroy(shop.gameObject);
         }
 
+        /// <summary>
+        /// Destroys all shops.
+        /// </summary>
         public void DestroyAllShops()
         {
             Shop[] shops = Shops.Values.ToArray();

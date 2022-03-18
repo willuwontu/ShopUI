@@ -5,10 +5,15 @@ using System.Linq;
 
 namespace ItemShops.Utils
 {
+    /// <summary>
+    /// A bank account for handling money.
+    /// </summary>
     public class BankAccount
     {
         private Dictionary<string, int> money = new Dictionary<string, int>();
-
+        /// <summary>
+        /// The money currently in the bank account.
+        /// </summary>
         public ReadOnlyDictionary<string, int> Money
         {
             get

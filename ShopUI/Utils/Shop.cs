@@ -14,10 +14,17 @@ using ItemShops.Monobehaviours;
 
 namespace ItemShops.Utils
 {
+    /// <summary>
+    /// A Shop Class that handles the purchasing of goods by players.
+    /// 
+    /// See <see cref="ShopManager.CreateShop(string)"/> for creating one.
+    /// </summary>
     public class Shop : MonoBehaviour
     {
         string _name;
-
+        /// <summary>
+        /// Returns true if this shop is visible.
+        /// </summary>
         public bool IsOpen
         {
             get
@@ -25,13 +32,22 @@ namespace ItemShops.Utils
                 return this.gameObject.activeSelf;
             }
         }
-        public string Name { get { return _name; } }
+        /// <summary>
+        /// The display name of the shop.
+        /// </summary>
+        public string DisplayName { get { return _name; } }
+        /// <summary>
+        /// If true, items that are invalid for the player to purchase are hidden.
+        /// </summary>
         public bool HideInvalidItems { get; set; } = false;
 
         Dictionary<string, ShopItem> _items = new Dictionary<string, ShopItem>();
 
         ShopItem currentPurchase = null;
 
+        /// <summary>
+        /// The current item that the player is viewing. Null if they are not viewing any items.
+        /// </summary>
         public ShopItem CurrentPurchase 
         { 
             get 
@@ -42,6 +58,9 @@ namespace ItemShops.Utils
 
         internal ShopItem highlightedItem = null;
         Player currentPlayer = null;
+        /// <summary>
+        /// The current player that is viewing the shop.
+        /// </summary>
         public Player CurrentPlayer
         {
             get
@@ -53,16 +72,20 @@ namespace ItemShops.Utils
         private GameObject _tagContainer = null;
         private TMP_InputField _filter = null;
         private GameObject _itemContainer = null;
-        //private TextMeshProUGUI _purchaseNameText = null;
         private GameObject _purchaseItemObject = null;
         private GameObject _purchaseCostContainer = null;
         private Button _purchaseButton = null;
         private GameObject _purchaseHighlight = null;
         private GameObject _moneyContainer = null;
 
+        /// <summary>
+        /// An action executed on all clients when an item is purchased.
+        /// 
+        /// The player is the purchasing player, and the ShopItem is the purchased item.
+        /// </summary>
         public Action<Player, ShopItem> itemPurchasedAction = null;
 
-        public TextMeshProUGUI Title
+        internal TextMeshProUGUI Title
         {
             get
             {
@@ -74,7 +97,7 @@ namespace ItemShops.Utils
                 return _title;
             }
         }
-        public GameObject TagContainer
+        internal GameObject TagContainer
         {
             get
             {
@@ -87,7 +110,7 @@ namespace ItemShops.Utils
             }
         }
         internal bool filterSelected = false;
-        public TMP_InputField Filter
+        internal TMP_InputField Filter
         {
             get
             {
@@ -116,7 +139,7 @@ namespace ItemShops.Utils
             }
         }
 
-        public GameObject ItemContainer
+        internal GameObject ItemContainer
         {
             get
             {
@@ -128,19 +151,7 @@ namespace ItemShops.Utils
                 return _itemContainer;
             }
         }
-        //public TextMeshProUGUI PurchaseNameText
-        //{
-        //    get
-        //    {
-        //        if (!_purchaseNameText)
-        //        {
-        //            _purchaseNameText = this.gameObject.transform.Find("Shop Sections/Item Section/Purchase Area/Item Info/Name Container/Name").GetComponent<TextMeshProUGUI>();
-        //        }
-
-        //        return _purchaseNameText;
-        //    }
-        //}
-        public GameObject PurchaseItemObject
+        internal GameObject PurchaseItemObject
         {
             get
             {
@@ -151,7 +162,7 @@ namespace ItemShops.Utils
                 return _purchaseItemObject;
             }
         }
-        public GameObject PurchaseCostContainer
+        internal GameObject PurchaseCostContainer
         {
             get
             {
@@ -162,7 +173,7 @@ namespace ItemShops.Utils
                 return _purchaseCostContainer;
             }
         }
-        public Button PurchaseButton
+        internal Button PurchaseButton
         {
             get
             {
@@ -173,7 +184,7 @@ namespace ItemShops.Utils
                 return _purchaseButton;
             }
         }
-        public GameObject PurchaseHighlight
+        internal GameObject PurchaseHighlight
         {
             get
             {
@@ -184,7 +195,7 @@ namespace ItemShops.Utils
                 return _purchaseHighlight;
             }
         }
-        public GameObject MoneyContainer
+        internal GameObject MoneyContainer
         {
             get
             {
@@ -198,7 +209,7 @@ namespace ItemShops.Utils
 
         private ScrollRect _scrollRect = null;
 
-        public ScrollRect Scroll
+        internal ScrollRect Scroll
         {
             get
             {
@@ -210,6 +221,9 @@ namespace ItemShops.Utils
                 return _scrollRect;
             }
         }
+        /// <summary>
+        /// A readonly dictionary of items available in the shop.
+        /// </summary>
         public ReadOnlyDictionary<string, ShopItem> ShopItems
         {
             get
@@ -217,7 +231,10 @@ namespace ItemShops.Utils
                 return new ReadOnlyDictionary<string, ShopItem>(_items);
             }
         }
-
+        /// <summary>
+        /// Updates the displayed name of the shop. The Unique ID that the shop was registered with remains the same.
+        /// </summary>
+        /// <param name="name">The shop's new name.</param>
         public void UpdateTitle(string name)
         {
             this._name = name;
@@ -252,25 +269,56 @@ namespace ItemShops.Utils
             return shopItem;
         }
 
+        /// <summary>
+        /// Adds an item to the shop for purchase by players.
+        /// </summary>
+        /// <param name="itemID">A unique ID for the item.</param>
+        /// <param name="item">The item to add to the shop.</param>
+        /// <param name="purchaseLimit">A specified purchase limit for the item.</param>
+        /// <returns>The created ShopItem, or null if it was invalid.</returns>
         public ShopItem AddItem(string itemID, Purchasable item, PurchaseLimit purchaseLimit)
         {
             return AddItem(itemID, item, purchaseLimit, true);
         }
 
+        /// <summary>
+        /// Adds an item to the shop for purchase by players.
+        /// </summary>
+        /// <param name="itemID">A unique ID for the item.</param>
+        /// <param name="item">The item to add to the shop.</param>
+        /// <returns>The created ShopItem, or null if it was invalid.</returns>
         public ShopItem AddItem(string itemID, Purchasable item)
         {
             return AddItem(itemID, item, new PurchaseLimit(0, 0), true);
         }
+
+        /// <summary>
+        /// Adds an item to the shop for purchase by players.
+        /// </summary>
+        /// <param name="item">The item to add to the shop.</param>
+        /// <param name="purchaseLimit">A specified purchase limit for the item.</param>
+        /// <returns>The created ShopItem, or null if it was invalid.</returns>
         public ShopItem AddItem(Purchasable item, PurchaseLimit purchaseLimit)
         {
             return this.AddItem(item.Name, item, purchaseLimit);
         }
 
+        /// <summary>
+        /// Adds an item to the shop for purchase by players.
+        /// </summary>
+        /// <param name="item">The item to add to the shop.</param>
+        /// <returns>The created ShopItem, or null if it was invalid.</returns>
         public ShopItem AddItem(Purchasable item)
         {
             return this.AddItem(item.Name, item);
         }
 
+        /// <summary>
+        /// Adds an array of items to the shop for purchase by players.
+        /// </summary>
+        /// <param name="itemIDs">The unique IDs of the items to add.</param>
+        /// <param name="items">The items to add.</param>
+        /// <returns>An array of the created ShopItems.</returns>
         public ShopItem[] AddItems(string[] itemIDs, Purchasable[] items)
         {
             if (items.Length != itemIDs.Length)
@@ -287,6 +335,13 @@ namespace ItemShops.Utils
             return shopItems.ToArray();
         }
 
+        /// <summary>
+        /// Adds an array of items to the shop for purchase by players.
+        /// </summary>
+        /// <param name="itemIDs">The unique IDs of the items to add.</param>
+        /// <param name="items">The items to add.</param>
+        /// <param name="purchaseLimit">A single purchase limit to set for each item.</param>
+        /// <returns>An array of the created ShopItems.</returns>
         public ShopItem[] AddItems(string[] itemIDs, Purchasable[] items, PurchaseLimit purchaseLimit)
         {
             if (items.Length != itemIDs.Length)
@@ -304,6 +359,13 @@ namespace ItemShops.Utils
             return shopItems.ToArray();
         }
 
+        /// <summary>
+        /// Adds an array of items to the shop for purchase by players.
+        /// </summary>
+        /// <param name="itemIDs">The unique IDs of the items to add.</param>
+        /// <param name="items">The items to add.</param>
+        /// <param name="purchaseLimits">A purchase limit for each item.</param>
+        /// <returns>An array of the created ShopItems.</returns>
         public ShopItem[] AddItems(string[] itemIDs, Purchasable[] items, PurchaseLimit[] purchaseLimits)
         {
             if (items.Length != purchaseLimits.Length || items.Length != itemIDs.Length)
@@ -322,19 +384,43 @@ namespace ItemShops.Utils
 
             return shopItems.ToArray();
         }
+
+        /// <summary>
+        /// Adds an array of items to the shop for purchase by players.
+        /// </summary>
+        /// <param name="items">The items to add.</param>
+        /// <returns>An array of the created ShopItems.</returns>
         public ShopItem[] AddItems(Purchasable[] items)
         {
             return this.AddItems(items.Select(i => i.Name).ToArray(), items);
         }
+
+        /// <summary>
+        /// Adds an array of items to the shop for purchase by players.
+        /// </summary>
+        /// <param name="items">The items to add.</param>
+        /// <param name="purchaseLimit">A single purchase limit to set for each item.</param>
+        /// <returns>An array of the created ShopItems.</returns>
         public ShopItem[] AddItems(Purchasable[] items, PurchaseLimit purchaseLimit)
         {
             return this.AddItems(items.Select(i => i.Name).ToArray(), items, purchaseLimit);
         }
+
+        /// <summary>
+        /// Adds an array of items to the shop for purchase by players.
+        /// </summary>
+        /// <param name="items">The items to add.</param>
+        /// <param name="purchaseLimits">A purchase limit for each item.</param>
+        /// <returns>An array of the created ShopItems.</returns>
         public ShopItem[] AddItems(Purchasable[] items, PurchaseLimit[] purchaseLimits)
         {
             return this.AddItems(items.Select(i => i.Name).ToArray(), items, purchaseLimits);
         }
 
+        /// <summary>
+        /// Removes an item from the shop.
+        /// </summary>
+        /// <param name="itemId">The unique Id of the item to remove.</param>
         public void RemoveItem(string itemId)
         {
             if (_items.TryGetValue(itemId, out var item))
@@ -345,6 +431,9 @@ namespace ItemShops.Utils
             ShopManager.instance.ExecuteAfterFrames(2, UpdateItems);
         }
 
+        /// <summary>
+        /// Removes all items from the shop.
+        /// </summary>
         public void RemoveAllItems()
         {
             var shopItems = ShopItems.ToArray();
@@ -421,20 +510,28 @@ namespace ItemShops.Utils
 
             var costItem = costObj.AddComponent<CostItem>();
             costItem.Text.text = $"{amount}";
+            costItem.Currency = currency;
             CurrencyManager.instance.CurrencyImageAction(currency)(costItem.Image);
 
             return costObj;
         }
 
+        /// <summary>
+        /// Shows the shop for a player.
+        /// </summary>
+        /// <param name="player">The player to show the show to.</param>
         public void Show(Player player)
         {
-            ShopManager.instance.HideAllShops();
-            currentPlayer = player;
+            if (player.data.view.IsMine)
+            {
+                ShopManager.instance.HideAllShops();
+                currentPlayer = player;
 
-            UpdateMoney();
-            UpdateFilters();
-            this.gameObject.SetActive(true);
-            ShopManager.instance.CurrentShop = this;
+                UpdateMoney();
+                UpdateFilters();
+                this.gameObject.SetActive(true);
+                ShopManager.instance.CurrentShop = this; 
+            }
         }
 
         private void UpdateMoney()
@@ -453,6 +550,9 @@ namespace ItemShops.Utils
             }
         }
 
+        /// <summary>
+        /// Closes the shop.
+        /// </summary>
         public void Hide()
         {
             currentPlayer = null;
@@ -464,6 +564,9 @@ namespace ItemShops.Utils
             selectedRow = new int[3];
         }
 
+        /// <summary>
+        /// Forces an update of all items and tags in the store.
+        /// </summary>
         public void UpdateItems()
         {
             var tagItems = this.GetComponentsInChildren<TagItem>();
@@ -528,6 +631,10 @@ namespace ItemShops.Utils
             {
                 item.gameObject.GetComponent<Button>().interactable = (validItems.Contains(item));
                 item.Darken.SetActive(!validItems.Contains(item));
+                if (this.HideInvalidItems && !validItems.Contains(item))
+                {
+                    item.gameObject.SetActive(false);
+                }
             }
 
             tagItems = this.GetComponentsInChildren<TagItem>().OrderBy(item => item.Tag.name).ToArray();
@@ -536,6 +643,8 @@ namespace ItemShops.Utils
             {
                 tagItems[i].transform.SetSiblingIndex(i);
             }
+
+            UpdateMoney();
         }
 
         private void ClearFilters()
@@ -595,6 +704,9 @@ namespace ItemShops.Utils
             this.selectedItem.transform.Find("Highlight").gameObject.SetActive(true);
         }
 
+        /// <summary>
+        /// Clears the purchase area of displayed items
+        /// </summary>
         public void ClearPurchaseArea()
         {
             foreach (Transform child in PurchaseItemObject.transform)
@@ -606,6 +718,8 @@ namespace ItemShops.Utils
             {
                 UnityEngine.GameObject.Destroy(child.gameObject);
             }
+
+            currentPurchase = null;
         }
 
         private void OnPurchaseClicked()
