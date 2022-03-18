@@ -13,34 +13,8 @@ namespace ItemShops.Utils
         private ButtonInteraction interact;
         private Shop shop;
         private TextMeshProUGUI _text;
-        //private GameObject _itemContainer = null;
-        //private GameObject _costContainer = null;
-        //public GameObject ItemContainer
-        //{
-        //    get
-        //    {
-        //        if (!_itemContainer)
-        //        {
-        //            _itemContainer = this.gameObject.transform.Find("Container/Item Holder").gameObject;
-        //        }
 
-        //        return _itemContainer;
-        //    }
-        //}
-        //public GameObject CostContainer
-        //{
-        //    get
-        //    {
-        //        if (!_costContainer)
-        //        {
-        //            _costContainer = this.gameObject.transform.Find("Container/Cost View/Viewport/Content").gameObject;
-        //        }
-
-        //        return _costContainer;
-        //    }
-        //}
-
-        public TextMeshProUGUI Text
+        internal TextMeshProUGUI Text
         {
             get
             {
@@ -53,7 +27,7 @@ namespace ItemShops.Utils
         }
         private GameObject _highlight = null;
 
-        public GameObject Highlight
+        internal GameObject Highlight
         {
             get
             {
@@ -67,7 +41,7 @@ namespace ItemShops.Utils
 
         private GameObject _darken = null;
 
-        public GameObject Darken
+        internal GameObject Darken
         {
             get
             {
@@ -79,16 +53,31 @@ namespace ItemShops.Utils
             }
         }
 
+        /// <summary>
+        /// The Purchasable containing information about the item.
+        /// </summary>
         public Purchasable Purchasable { get; internal set; }
+
+        /// <summary>
+        /// The purchase limit for the item.
+        /// </summary>
         public PurchaseLimit PurchaseLimit { get; internal set; }
 
         internal int _timesPurchased = 0;
         internal Dictionary<Player, int> _timesPlayerPurchased = new Dictionary<Player, int>();
 
+        /// <summary>
+        /// The number of times the item has been purchased.
+        /// </summary>
         public int TimesPurchased { get { return _timesPurchased; } }
+        /// <summary>
+        /// The number of times the item has been purchased by each player.
+        /// 
+        /// Note: Only players who've purchased the item are contained in this dictionary.
+        /// </summary>
         public ReadOnlyDictionary<Player, int> TimesPlayerPurchased { get { return new ReadOnlyDictionary<Player, int>(_timesPlayerPurchased); } }
 
-        public void OnPurchase(Player player)
+        internal void OnPurchase(Player player)
         {
             _timesPurchased++;
             if (_timesPlayerPurchased.TryGetValue(player, out int times))
@@ -102,6 +91,11 @@ namespace ItemShops.Utils
             Purchasable.OnPurchase(player, Purchasable);
         }
 
+        /// <summary>
+        /// Returns whether an item is purchaseable.
+        /// </summary>
+        /// <param name="player">Optional. A player to check the item's validity against.</param>
+        /// <returns>True if the item is purchasable, false if not.</returns>
         public bool IsItemPurchasable(Player player = null)
         {
             bool canPurchase = this.Purchasable.CanPurchase(player);
@@ -128,11 +122,18 @@ namespace ItemShops.Utils
             return canPurchase;
         }
 
+        /// <summary>
+        /// Updates the displayed name of the item.
+        /// </summary>
+        /// <param name="name">The name to display.</param>
         public void UpdateDisplayName(string name)
         {
             this.Text.text = name;
         }
 
+        /// <summary>
+        /// Resets the amount of times the item has been purchased.
+        /// </summary>
         public void ResetPurchases()
         {
             _timesPurchased = 0;

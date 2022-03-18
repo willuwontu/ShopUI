@@ -130,18 +130,21 @@ namespace ItemShops
 
         //            this.ExecuteAfterSeconds(1f, () =>
         //            {
-        //                var items = UnboundLib.Utils.CardManager.cards.Values.Select(card => new PurchasableCard(card.cardInfo, new Dictionary<string, int> { { "Credits", 1 }, { "Banana", 2 } }, new Tag[] { new Tag(card.category), new Tag("Banana") })).ToArray().Take(50).ToArray();
+        //                var items = UnboundLib.Utils.CardManager.cards.Values.Select(card => new PurchasableCard(card.cardInfo, new Dictionary<string, int> { { "Credits", 1 }, { "Banana", 2 } }, new Tag[] { new Tag(card.category), new Tag("Banana") })).ToArray();
         //                shop.AddItems(items.Select(item => item.Card.cardName).ToArray(), items);
         //            });
-        //            this.ExecuteAfterSeconds(2f, () =>
-        //            {
-        //                shop.AddItem("Walrus 500", UnboundLib.Utils.CardManager.cards.Values.Select(card => new PurchasableTRTCard(card.cardInfo, new Dictionary<string, int>(), new Tag[] { new Tag(card.category) })).ToArray().GetRandom<Purchasable>());
-        //            });
+        //            //this.ExecuteAfterSeconds(2f, () =>
+        //            //{
+        //            //    shop.AddItem("Walrus 500", UnboundLib.Utils.CardManager.cards.Values.Select(card => new PurchasableTRTCard(card.cardInfo, new Dictionary<string, int>(), new Tag[] { new Tag(card.category) })).ToArray().GetRandom<Purchasable>());
+        //            //});
         //        }
 
         //        if (shop.IsOpen)
         //        {
-        //            shop.Hide();
+        //            if (!shop.Filter.isFocused)
+        //            {
+        //                shop.Hide();
+        //            }
         //        }
         //        else
         //        {

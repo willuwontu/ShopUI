@@ -7,7 +7,7 @@ using ItemShops.Monobehaviours;
 
 namespace ItemShops.Utils
 {
-    public class TagItem : MonoBehaviour
+    internal class TagItem : MonoBehaviour
     {
         public Tag Tag;
 
@@ -19,7 +19,7 @@ namespace ItemShops.Utils
 
         private GameObject _highlight = null;
 
-        public GameObject Highlight
+        internal GameObject Highlight
         {
             get
             {
