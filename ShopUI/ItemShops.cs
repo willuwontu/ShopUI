@@ -27,7 +27,7 @@ namespace ItemShops
     {
         private const string ModId = "com.willuwontu.rounds.itemshops";
         private const string ModName = "Item Shops";
-        public const string Version = "0.0.0"; // What version are we on (major.minor.patch)?
+        public const string Version = "0.0.1"; // What version are we on (major.minor.patch)?
 
         public static ItemShops instance { get; private set; }
 

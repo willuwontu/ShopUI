@@ -77,6 +77,7 @@ namespace ItemShops.Utils
         private Button _purchaseButton = null;
         private GameObject _purchaseHighlight = null;
         private GameObject _moneyContainer = null;
+        private TextMeshProUGUI _moneyText = null;
 
         /// <summary>
         /// An action executed on all clients when an item is purchased.
@@ -207,6 +208,18 @@ namespace ItemShops.Utils
             }
         }
 
+        internal TextMeshProUGUI MoneyText
+        {
+            get
+            {
+                if (!_moneyText)
+                {
+                    _moneyText = this.gameObject.transform.Find("Shop Sections/Money Section/Money Text").gameObject.GetComponent<TextMeshProUGUI>();
+                }
+                return _moneyText;
+            }
+        }
+
         private ScrollRect _scrollRect = null;
 
         internal ScrollRect Scroll
@@ -239,6 +252,15 @@ namespace ItemShops.Utils
         {
             this._name = name;
             this.Title.text = name;
+        }
+
+        /// <summary>
+        /// Updates the displayed name for the money container.
+        /// </summary>
+        /// <param name="name">The new name.</param>
+        public void UpdateMoneyColumnName(string name)
+        {
+            this.MoneyText.text = name;
         }
 
         private ShopItem AddItem(string itemID, Purchasable item, PurchaseLimit purchaseLimit, bool update)
@@ -530,8 +552,42 @@ namespace ItemShops.Utils
                 UpdateMoney();
                 UpdateFilters();
                 this.gameObject.SetActive(true);
-                ShopManager.instance.CurrentShop = this; 
+                ShopManager.instance.CurrentShop = this;
+
+                ExitGames.Client.Photon.Hashtable customProperties = player.data.view.Owner.CustomProperties;
+
+                customProperties["ItemShops-InShop"] = true;
+
+                player.data.view.Owner.SetCustomProperties(customProperties, null, null);
             }
+        }
+
+        /// <summary>
+        /// Closes the shop.
+        /// </summary>
+        public void Hide()
+        {
+            if (!this.gameObject.activeSelf)
+            {
+                return;
+            }
+
+            if (currentPlayer != null && currentPlayer.data.view.IsMine)
+            {
+                ExitGames.Client.Photon.Hashtable customProperties = currentPlayer.data.view.Owner.CustomProperties;
+
+                customProperties["ItemShops-InShop"] = false;
+
+                currentPlayer.data.view.Owner.SetCustomProperties(customProperties, null, null);
+            }
+
+            currentPlayer = null;
+            currentPurchase = null;
+            ClearPurchaseArea();
+            this.gameObject.SetActive(false);
+            ShopManager.instance.CurrentShop = null;
+            selectedItem = null;
+            selectedRow = new int[3];
         }
 
         private void UpdateMoney()
@@ -548,20 +604,6 @@ namespace ItemShops.Utils
                     CreateCostItem(this.MoneyContainer, money.Key, money.Value);
                 }
             }
-        }
-
-        /// <summary>
-        /// Closes the shop.
-        /// </summary>
-        public void Hide()
-        {
-            currentPlayer = null;
-            currentPurchase = null;
-            ClearPurchaseArea();
-            this.gameObject.SetActive(false);
-            ShopManager.instance.CurrentShop = null;
-            selectedItem = null;
-            selectedRow = new int[3];
         }
 
         /// <summary>
