@@ -155,5 +155,39 @@ namespace ItemShops.Utils
                 }
             }
         }
+
+        /// <summary>
+        /// Gets the network status of whether a player is in a shop or not.
+        /// </summary>
+        /// <param name="player">The player to check the status of.</param>
+        /// <returns>True if they're in a shop, false if not.</returns>
+        public bool PlayerIsInShop(Player player)
+        {
+            ExitGames.Client.Photon.Hashtable customProperties = player.data.view.Owner.CustomProperties;
+
+            if (customProperties.TryGetValue("ItemShops-InShop", out object inShop))
+            {
+                return (bool)inShop;
+            }
+
+            return false;
+        }
+
+        private Dictionary<string, int> GetLocalPlayersInShops()
+        {
+            Dictionary<string, int> result = new Dictionary<string, int>();
+
+            var shops = this.Shops.ToArray();
+
+            foreach (var shop in shops)
+            {
+                if (shop.Value.gameObject.activeSelf && shop.Value.CurrentPlayer && shop.Value.CurrentPlayer.data.view.IsMine)
+                {
+                    result.Add(shop.Key, shop.Value.CurrentPlayer.playerID);
+                }
+            }
+
+            return result;
+        }
     }
 }

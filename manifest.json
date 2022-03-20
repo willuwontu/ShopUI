@@ -1,0 +1,15 @@
+{
+	"name":"ItemShops",
+	"author_name":"willuwontu",
+    "version_number":"0.0.1",
+	"website_url":"https://github.com/willuwontu/ShopUI",
+	"displayName":"Item Shops",
+	"description":"Utilities for the creation of item shops.",
+	"dependencies": [
+	    "willis81808-UnboundLib-2.11.0",
+		"willis81808-MMHook-1.0.0",
+		"BepInEx-BepInExPack_ROUNDS-5.4.1100",
+		"Pykess-CardChoiceSpawnUniqueCardPatch-0.1.7",
+		"Pykess-ModdingUtils-0.2.6"
+	]
+}
