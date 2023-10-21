@@ -82,7 +82,7 @@ namespace ItemShops.Utils
             _timesPurchased++;
             if (_timesPlayerPurchased.TryGetValue(player, out int times))
             {
-                times++;
+                _timesPlayerPurchased[player] = times + 1;
             }
             else
             {

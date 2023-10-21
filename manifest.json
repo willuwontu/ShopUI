@@ -1,7 +1,7 @@
 {
 	"name":"ItemShops",
 	"author_name":"willuwontu",
-    "version_number":"0.0.1",
+    "version_number":"0.0.2",
 	"website_url":"https://github.com/willuwontu/ShopUI",
 	"displayName":"Item Shops",
 	"description":"Utilities for the creation of item shops.",

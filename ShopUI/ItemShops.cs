@@ -27,7 +27,7 @@ namespace ItemShops
     {
         private const string ModId = "com.willuwontu.rounds.itemshops";
         private const string ModName = "Item Shops";
-        public const string Version = "0.0.1"; // What version are we on (major.minor.patch)?
+        public const string Version = "0.0.2"; // What version are we on (major.minor.patch)?
 
         public static ItemShops instance { get; private set; }
 
@@ -131,7 +131,7 @@ namespace ItemShops
         //            this.ExecuteAfterSeconds(1f, () =>
         //            {
         //                var items = UnboundLib.Utils.CardManager.cards.Values.Select(card => new PurchasableCard(card.cardInfo, new Dictionary<string, int> { { "Credits", 1 }, { "Banana", 2 } }, new Tag[] { new Tag(card.category), new Tag("Banana") })).ToArray();
-        //                shop.AddItems(items.Select(item => item.Card.cardName).ToArray(), items);
+        //                shop.AddItems(items.Select(item => item.Card.cardName).ToArray(), items, items.Select(item => new PurchaseLimit(UnityEngine.Random.Range(0, 4), UnityEngine.Random.Range(0, 4))).ToArray());
         //            });
         //            //this.ExecuteAfterSeconds(2f, () =>
         //            //{

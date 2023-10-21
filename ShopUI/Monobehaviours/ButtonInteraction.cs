@@ -13,7 +13,7 @@ namespace ItemShops.Monobehaviours
         public UnityEvent mouseClick = new UnityEvent();
         public UnityEvent mouseEnter = new UnityEvent();
         public UnityEvent mouseExit = new UnityEvent();
-        public Button button;
+        public Selectable button;
         public AudioSource source;
 
         private System.Random random = new System.Random();
